@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const TokensApiController = require('../controllers/tokensController');
+const tokenController = require('../controllers/tokensController');
 
-router.get('/', TokensApiController.getAll);
-router.get('/:id', TokensApiController.getById);
-router.get('/token/:token', TokensApiController.getByToken);
-router.post('/', TokensApiController.create);
-router.delete('/:token', TokensApiController.delete);
+router.get('/', tokenController.getAll);
+router.get('/:id', tokenController.getById);
+router.post('/', tokenController.create);
+router.put('/:id', tokenController.update);
+router.delete('/:id', tokenController.delete);
 
 module.exports = router;

@@ -1,20 +1,37 @@
-// models/configuracionComprasModel.js
 const pool = require('../config/db');
 
-const ConfiguracionCompras = {
-  async getByClave(clave) {
-    const result = await pool.query('SELECT * FROM configuracion_compras WHERE clave = $1', [clave]);
-    return result.rows[0];
-  },
-
-  async update(clave, valor, descripcion, usuario_modificacion) {
-    const result = await pool.query(
-      `UPDATE configuracion_compras SET valor = $1, descripcion = $2, usuario_modificacion = $3,
-        fecha_modificacion = NOW() WHERE clave = $4 RETURNING *`,
-      [valor, descripcion, usuario_modificacion, clave]
-    );
-    return result.rows[0];
-  }
+const getAll = () => {
+  return pool.query('SELECT * FROM configuracion_compras');
 };
 
-module.exports = ConfiguracionCompras;
+const getById = (id) => {
+  return pool.query('SELECT * FROM configuracion_compras WHERE id = $1', [id]);
+};
+
+const create = (data) => {
+  const { campo1, campo2 } = data;
+  return pool.query(
+    'INSERT INTO configuracion_compras (campo1, campo2) VALUES ($1, $2) RETURNING *',
+    [campo1, campo2]
+  );
+};
+
+const update = (id, data) => {
+  const { campo1, campo2 } = data;
+  return pool.query(
+    'UPDATE configuracion_compras SET campo1 = $1, campo2 = $2 WHERE id = $3 RETURNING *',
+    [campo1, campo2, id]
+  );
+};
+
+const remove = (id) => {
+  return pool.query('DELETE FROM configuracion_compras WHERE id = $1 RETURNING *', [id]);
+};
+
+module.exports = {
+  getAll,
+  getById,
+  create,
+  update,
+  remove,
+};

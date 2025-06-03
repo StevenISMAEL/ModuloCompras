@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const SaldosProveedorController = require('../controllers/saldoProveedorController');
+const saldoController = require('../controllers/saldoProveedorController');
 
-router.get('/', SaldosProveedorController.getAll);
-router.get('/:id', SaldosProveedorController.getById);
-router.get('/proveedor/:cedula_ruc', SaldosProveedorController.getByProveedor);
-router.post('/', SaldosProveedorController.create);
-router.put('/:id', SaldosProveedorController.update);
-router.delete('/:id', SaldosProveedorController.delete);
+router.get('/', saldoController.getAll);
+router.get('/:id', saldoController.getById);
+router.post('/', saldoController.create);
+router.put('/:id', saldoController.update);
+router.delete('/:id', saldoController.delete);
 
 module.exports = router;

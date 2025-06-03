@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const ConfiguracionComprasController = require('../controllers/ConfiguracionComprasController');
+const configuracionController = require('../controllers/ConfiguracionComprasController');
 
-router.get('/', ConfiguracionComprasController.getAll);
-router.get('/:clave', ConfiguracionComprasController.getByClave);
-router.post('/', ConfiguracionComprasController.create);
-router.put('/:clave', ConfiguracionComprasController.update);
-router.delete('/:clave', ConfiguracionComprasController.delete);
+router.get('/', configuracionController.getAll);
+router.put('/:id', configuracionController.update);
 
 module.exports = router;

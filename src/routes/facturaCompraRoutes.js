@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const FacturaCompraController = require('../controllers/facturaCompraController');
+const facturaController = require('../controllers/FacturaCompraController');
 
-router.get('/', FacturaCompraController.getAll);
-router.get('/:id', FacturaCompraController.getById);
-router.post('/', FacturaCompraController.create);
-router.put('/:id', FacturaCompraController.update);
-router.delete('/:id', FacturaCompraController.delete);
+router.get('/', facturaController.getAll);
+router.get('/:id', facturaController.getById);
+router.post('/', facturaController.create);
+router.put('/:id', facturaController.update);
+router.delete('/:id', facturaController.delete);
 
 module.exports = router;

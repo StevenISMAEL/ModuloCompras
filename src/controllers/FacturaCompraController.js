@@ -1,45 +1,46 @@
-// models/facturasCompraModel.js
-const pool = require('../config/db');
+const model = require('../models/facturasCompraModel');
 
-const FacturasCompra = {
-  async getAll() {
-    const result = await pool.query('SELECT * FROM facturas_compra ORDER BY fecha_emision DESC');
-    return result.rows;
-  },
-
-  async getById(id) {
-    const result = await pool.query('SELECT * FROM facturas_compra WHERE id = $1', [id]);
-    return result.rows[0];
-  },
-
-  async create(data) {
-    const { numero_factura, numero_factura_proveedor, fecha_emision, proveedor_cedula_ruc, tipo_pago, fecha_vencimiento,
-            subtotal, iva, total, observaciones, usuario_creacion } = data;
-
-    const result = await pool.query(
-      `INSERT INTO facturas_compra (numero_factura, numero_factura_proveedor, fecha_emision, proveedor_cedula_ruc, tipo_pago,
-        fecha_vencimiento, subtotal, iva, total, observaciones, usuario_creacion)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
-      [numero_factura, numero_factura_proveedor, fecha_emision, proveedor_cedula_ruc, tipo_pago,
-        fecha_vencimiento, subtotal, iva, total, observaciones, usuario_creacion]
-    );
-    return result.rows[0];
-  },
-
-  async update(id, data) {
-    const { estado, fecha_modificacion, usuario_modificacion } = data;
-    const result = await pool.query(
-      `UPDATE facturas_compra SET estado = $1, fecha_modificacion = $2, usuario_modificacion = $3
-       WHERE id = $4 RETURNING *`,
-      [estado, fecha_modificacion, usuario_modificacion, id]
-    );
-    return result.rows[0];
-  },
-
-  async delete(id) {
-    const result = await pool.query('DELETE FROM facturas_compra WHERE id = $1 RETURNING *', [id]);
-    return result.rows[0];
+exports.getAll = async (req, res) => {
+  try {
+    const result = await model.getAll();
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-module.exports = FacturasCompra;
+exports.getById = async (req, res) => {
+  try {
+    const result = await model.getById(req.params.id);
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.create = async (req, res) => {
+  try {
+    const result = await model.create(req.body);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.update = async (req, res) => {
+  try {
+    const result = await model.update(req.params.id, req.body);
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.delete = async (req, res) => {
+  try {
+    await model.delete(req.params.id);
+    res.json({ message: 'Factura de compra eliminada correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

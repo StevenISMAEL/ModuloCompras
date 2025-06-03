@@ -1,25 +1,33 @@
-// models/tokensApiModel.js
-const pool = require('../config/db');
+const db = require('../config/db');
 
-const TokensApi = {
-  async create(data) {
-    const { usuario_id, token, fecha_expiracion } = data;
-    const result = await pool.query(
-      `INSERT INTO tokens_api (usuario_id, token, fecha_expiracion) VALUES ($1,$2,$3) RETURNING *`,
-      [usuario_id, token, fecha_expiracion]
+const tokensApiModel = {
+  getAll: async () => {
+    return await db.query('SELECT * FROM tokens_api');
+  },
+
+  getById: async (id) => {
+    return await db.query('SELECT * FROM tokens_api WHERE id = $1', [id]);
+  },
+
+  create: async (data) => {
+    const { token, descripcion, activo } = data;
+    return await db.query(
+      'INSERT INTO tokens_api (token, descripcion, activo) VALUES ($1, $2, $3) RETURNING *',
+      [token, descripcion, activo]
     );
-    return result.rows[0];
   },
 
-  async getByToken(token) {
-    const result = await pool.query('SELECT * FROM tokens_api WHERE token = $1', [token]);
-    return result.rows[0];
+  update: async (id, data) => {
+    const { token, descripcion, activo } = data;
+    return await db.query(
+      'UPDATE tokens_api SET token = $1, descripcion = $2, activo = $3 WHERE id = $4 RETURNING *',
+      [token, descripcion, activo, id]
+    );
   },
 
-  async delete(token) {
-    const result = await pool.query('DELETE FROM tokens_api WHERE token = $1 RETURNING *', [token]);
-    return result.rows[0];
-  }
+  delete: async (id) => {
+    return await db.query('DELETE FROM tokens_api WHERE id = $1', [id]);
+  },
 };
 
-module.exports = TokensApi;
+module.exports = tokensApiModel;

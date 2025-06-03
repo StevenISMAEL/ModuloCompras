@@ -1,42 +1,94 @@
-// models/proveedoresModel.js
-const pool = require('../config/db');
+const db = require('../config/db');
 
-const Proveedores = {
+const proveedoresModel = {
   async getAll() {
-    const result = await pool.query('SELECT * FROM proveedores ORDER BY nombre');
-    return result.rows;
+    return db.query('SELECT * FROM proveedores');
   },
 
   async getById(cedula_ruc) {
-    const result = await pool.query('SELECT * FROM proveedores WHERE cedula_ruc = $1', [cedula_ruc]);
-    return result.rows[0];
+    return db.query('SELECT * FROM proveedores WHERE cedula_ruc = $1', [cedula_ruc]);
   },
 
   async create(data) {
-    const { cedula_ruc, nombre, ciudad, tipo_proveedor, direccion, telefono, email, usuario_creacion } = data;
-    const result = await pool.query(
-      `INSERT INTO proveedores (cedula_ruc, nombre, ciudad, tipo_proveedor, direccion, telefono, email, usuario_creacion)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [cedula_ruc, nombre, ciudad, tipo_proveedor, direccion, telefono, email, usuario_creacion]
-    );
-    return result.rows[0];
+    const {
+      cedula_ruc,
+      nombre,
+      ciudad,
+      tipo_proveedor,
+      direccion,
+      telefono,
+      email,
+      usuario_creacion
+    } = data;
+
+    const query = `
+      INSERT INTO proveedores (
+        cedula_ruc, nombre, ciudad, tipo_proveedor,
+        direccion, telefono, email, usuario_creacion
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *;
+    `;
+
+    const values = [
+      cedula_ruc,
+      nombre,
+      ciudad,
+      tipo_proveedor,
+      direccion,
+      telefono,
+      email,
+      usuario_creacion
+    ];
+
+    return db.query(query, values);
   },
 
   async update(cedula_ruc, data) {
-    const { nombre, ciudad, tipo_proveedor, direccion, telefono, email, estado, usuario_modificacion } = data;
-    const result = await pool.query(
-      `UPDATE proveedores SET nombre = $1, ciudad = $2, tipo_proveedor = $3,
-        direccion = $4, telefono = $5, email = $6, estado = $7, fecha_modificacion = NOW(), usuario_modificacion = $8
-        WHERE cedula_ruc = $9 RETURNING *`,
-      [nombre, ciudad, tipo_proveedor, direccion, telefono, email, estado, usuario_modificacion, cedula_ruc]
-    );
-    return result.rows[0];
+    const {
+      nombre,
+      ciudad,
+      tipo_proveedor,
+      direccion,
+      telefono,
+      email,
+      estado,
+      usuario_modificacion
+    } = data;
+
+    const query = `
+      UPDATE proveedores
+      SET nombre = $1,
+          ciudad = $2,
+          tipo_proveedor = $3,
+          direccion = $4,
+          telefono = $5,
+          email = $6,
+          estado = $7,
+          fecha_modificacion = CURRENT_TIMESTAMP,
+          usuario_modificacion = $8
+      WHERE cedula_ruc = $9
+      RETURNING *;
+    `;
+
+    const values = [
+      nombre,
+      ciudad,
+      tipo_proveedor,
+      direccion,
+      telefono,
+      email,
+      estado,
+      usuario_modificacion,
+      cedula_ruc
+    ];
+
+    return db.query(query, values);
   },
 
   async delete(cedula_ruc) {
-    const result = await pool.query('DELETE FROM proveedores WHERE cedula_ruc = $1 RETURNING *', [cedula_ruc]);
-    return result.rows[0];
+    return db.query('DELETE FROM proveedores WHERE cedula_ruc = $1 RETURNING *', [cedula_ruc]);
   }
 };
 
-module.exports = Proveedores;
+module.exports = proveedoresModel;

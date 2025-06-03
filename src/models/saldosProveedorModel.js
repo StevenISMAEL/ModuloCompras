@@ -1,29 +1,33 @@
-// models/saldosProveedorModel.js
-const pool = require('../config/db');
+const db = require('../config/db');
 
-const SaldosProveedor = {
-  async getByProveedor(cedula_ruc) {
-    const result = await pool.query('SELECT * FROM saldos_proveedor WHERE proveedor_cedula_ruc = $1', [cedula_ruc]);
-    return result.rows;
+const saldosProveedorModel = {
+  getAll: async () => {
+    return await db.query('SELECT * FROM saldos_proveedor');
   },
 
-  async create(data) {
-    const { proveedor_cedula_ruc, factura_id, monto_original, saldo_pendiente, fecha_vencimiento, usuario_creacion } = data;
-    const result = await pool.query(
-      `INSERT INTO saldos_proveedor (proveedor_cedula_ruc, factura_id, monto_original, saldo_pendiente, fecha_vencimiento, usuario_creacion)
-       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-      [proveedor_cedula_ruc, factura_id, monto_original, saldo_pendiente, fecha_vencimiento, usuario_creacion]
-    );
-    return result.rows[0];
+  getById: async (id) => {
+    return await db.query('SELECT * FROM saldos_proveedor WHERE id = $1', [id]);
   },
 
-  async updateEstado(id, estado, usuario_modificacion) {
-    const result = await pool.query(
-      `UPDATE saldos_proveedor SET estado = $1, fecha_modificacion = NOW(), usuario_modificacion = $2 WHERE id = $3 RETURNING *`,
-      [estado, usuario_modificacion, id]
+  create: async (data) => {
+    const { proveedor_id, saldo } = data;
+    return await db.query(
+      'INSERT INTO saldos_proveedor (proveedor_id, saldo) VALUES ($1, $2) RETURNING *',
+      [proveedor_id, saldo]
     );
-    return result.rows[0];
-  }
+  },
+
+  update: async (id, data) => {
+    const { proveedor_id, saldo } = data;
+    return await db.query(
+      'UPDATE saldos_proveedor SET proveedor_id = $1, saldo = $2 WHERE id = $3 RETURNING *',
+      [proveedor_id, saldo, id]
+    );
+  },
+
+  delete: async (id) => {
+    return await db.query('DELETE FROM saldos_proveedor WHERE id = $1', [id]);
+  },
 };
 
-module.exports = SaldosProveedor;
+module.exports = saldosProveedorModel;

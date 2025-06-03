@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const PagosProveedorController = require('../controllers/pagoProveedorController');
+const pagoController = require('../controllers/pagoProveedorController');
 
-router.get('/', PagosProveedorController.getAll);
-router.get('/:id', PagosProveedorController.getById);
-router.get('/saldo/:saldo_id', PagosProveedorController.getBySaldoId);
-router.post('/', PagosProveedorController.create);
-router.put('/:id', PagosProveedorController.update);
-router.delete('/:id', PagosProveedorController.delete);
+router.get('/', pagoController.getAll);
+router.get('/:id', pagoController.getById);
+router.post('/', pagoController.create);
+router.put('/:id', pagoController.update);
+router.delete('/:id', pagoController.delete);
 
 module.exports = router;
