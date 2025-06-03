@@ -1,3 +1,4 @@
+// src/models/pagosProveedorModel.js
 const db = require('../config/db');
 
 const pagosProveedorModel = {
@@ -10,28 +11,68 @@ const pagosProveedorModel = {
   },
 
   async create(data) {
-    const { id_proveedor, fecha_pago, monto, metodo_pago } = data;
+    const {
+      saldo_id,
+      monto,
+      fecha_pago,
+      metodo_pago,
+      referencia_pago,
+      observacion,
+      usuario_creacion
+    } = data;
+
     const query = `
-      INSERT INTO pagos_proveedor (id_proveedor, fecha_pago, monto, metodo_pago)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO pagos_proveedor (
+        saldo_id, monto, fecha_pago, metodo_pago,
+        referencia_pago, observacion, usuario_creacion
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *;
     `;
-    const values = [id_proveedor, fecha_pago, monto, metodo_pago];
+
+    const values = [
+      saldo_id,
+      monto,
+      fecha_pago,
+      metodo_pago,
+      referencia_pago,
+      observacion,
+      usuario_creacion
+    ];
+
     return db.query(query, values);
   },
 
   async update(id, data) {
-    const { id_proveedor, fecha_pago, monto, metodo_pago } = data;
+    const {
+      saldo_id,
+      monto,
+      fecha_pago,
+      metodo_pago,
+      referencia_pago,
+      observacion
+    } = data;
+
     const query = `
       UPDATE pagos_proveedor
-      SET id_proveedor = $1,
-          fecha_pago = $2,
-          monto = $3,
-          metodo_pago = $4
-      WHERE id = $5
+      SET saldo_id = $1,
+          monto = $2,
+          fecha_pago = $3,
+          metodo_pago = $4,
+          referencia_pago = $5,
+          observacion = $6
+      WHERE id = $7
       RETURNING *;
     `;
-    const values = [id_proveedor, fecha_pago, monto, metodo_pago, id];
+    const values = [
+      saldo_id,
+      monto,
+      fecha_pago,
+      metodo_pago,
+      referencia_pago,
+      observacion,
+      id
+    ];
+
     return db.query(query, values);
   },
 

@@ -8,19 +8,36 @@ const getById = (id) => {
   return pool.query('SELECT * FROM configuracion_compras WHERE id = $1', [id]);
 };
 
+// No se proporciona "create" porque normalmente son configuraciones predefinidas
+// Si deseas permitir crear nuevas claves, puedes incluirlo
+
 const create = (data) => {
-  const { campo1, campo2 } = data;
+  const { clave, valor, descripcion, usuario_modificacion } = data;
+
   return pool.query(
-    'INSERT INTO configuracion_compras (campo1, campo2) VALUES ($1, $2) RETURNING *',
-    [campo1, campo2]
+    `
+    INSERT INTO configuracion_compras (clave, valor, descripcion, usuario_modificacion)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *;
+    `,
+    [clave, valor, descripcion, usuario_modificacion]
   );
 };
 
 const update = (id, data) => {
-  const { campo1, campo2 } = data;
+  const { valor, descripcion, usuario_modificacion } = data;
+
   return pool.query(
-    'UPDATE configuracion_compras SET campo1 = $1, campo2 = $2 WHERE id = $3 RETURNING *',
-    [campo1, campo2, id]
+    `
+    UPDATE configuracion_compras
+    SET valor = $1,
+        descripcion = $2,
+        fecha_modificacion = CURRENT_TIMESTAMP,
+        usuario_modificacion = $3
+    WHERE id = $4
+    RETURNING *;
+    `,
+    [valor, descripcion, usuario_modificacion, id]
   );
 };
 
@@ -31,7 +48,6 @@ const remove = (id) => {
 module.exports = {
   getAll,
   getById,
-  create,
   update,
-  remove,
+  remove
 };

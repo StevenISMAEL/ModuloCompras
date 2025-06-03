@@ -12,6 +12,9 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const result = await model.getById(req.params.id);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Factura no encontrada' });
+    }
     res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -39,7 +42,7 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   try {
     await model.delete(req.params.id);
-    res.json({ message: 'Factura de compra eliminada correctamente' });
+    res.json({ message: 'Factura eliminada correctamente' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
