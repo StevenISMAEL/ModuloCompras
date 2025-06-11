@@ -1,9 +1,10 @@
-const model = require('../models/facturaDetalleModel');
+// src/controllers/FacturaCompraDetalleController.js
+const { FacturaDetalle } = require('../models');
 
 exports.getAll = async (req, res) => {
   try {
-    const result = await model.getAll();
-    res.json(result.rows);
+    const detalles = await FacturaDetalle.findAll();
+    res.json(detalles);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -11,11 +12,12 @@ exports.getAll = async (req, res) => {
 
 exports.getById = async (req, res) => {
   try {
-    const result = await model.getById(req.params.id);
-    if (result.rows.length === 0) {
+    const { id } = req.params;
+    const detalle = await FacturaDetalle.findByPk(id);
+    if (!detalle) {
       return res.status(404).json({ error: 'Detalle no encontrado' });
     }
-    res.json(result.rows[0]);
+    res.json(detalle);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -23,8 +25,8 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const result = await model.create(req.body);
-    res.status(201).json(result.rows[0]);
+    const nuevo = await FacturaDetalle.create(req.body);
+    res.status(201).json(nuevo);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -32,8 +34,13 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const result = await model.update(req.params.id, req.body);
-    res.json(result.rows[0]);
+    const { id } = req.params;
+    const detalle = await FacturaDetalle.findByPk(id);
+    if (!detalle) {
+      return res.status(404).json({ error: 'Detalle no encontrado' });
+    }
+    await detalle.update(req.body);
+    res.json(detalle);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -41,7 +48,11 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    await model.delete(req.params.id);
+    const { id } = req.params;
+    const borrado = await FacturaDetalle.destroy({ where: { id } });
+    if (!borrado) {
+      return res.status(404).json({ error: 'Detalle no encontrado' });
+    }
     res.json({ message: 'Detalle eliminado correctamente' });
   } catch (err) {
     res.status(500).json({ error: err.message });

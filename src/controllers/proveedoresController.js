@@ -1,9 +1,10 @@
-const model = require('../models/proveedoresModel');
+// src/controllers/proveedoresController.js
+const { Proveedor, FacturaCompra } = require('../models');
 
 exports.getAll = async (req, res) => {
   try {
-    const result = await model.getAll();
-    res.json(result.rows);
+    const proveedores = await Proveedor.findAll();
+    res.json(proveedores);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -12,11 +13,11 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
-    const result = await model.getById(cedula_ruc);
-    if (result.rows.length === 0) {
+    const proveedor = await Proveedor.findByPk(cedula_ruc);
+    if (!proveedor) {
       return res.status(404).json({ error: 'Proveedor no encontrado' });
     }
-    res.json(result.rows[0]);
+    res.json(proveedor);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -24,8 +25,9 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const result = await model.create(req.body);
-    res.status(201).json(result.rows[0]);
+    // Asumimos que req.body contiene las propiedades adecuadas
+    const nuevo = await Proveedor.create(req.body);
+    res.status(201).json(nuevo);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -34,11 +36,13 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
-    const result = await model.update(cedula_ruc, req.body);
-    if (result.rows.length === 0) {
+    const proveedor = await Proveedor.findByPk(cedula_ruc);
+    if (!proveedor) {
       return res.status(404).json({ error: 'Proveedor no encontrado para actualizar' });
     }
-    res.json(result.rows[0]);
+    // Actualiza solo campos permitidos; aquí asumimos que req.body trae solo campos editables
+    await proveedor.update(req.body);
+    res.json(proveedor);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -46,18 +50,18 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const result = await model.delete(req.params.cedula_ruc);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: 'Proveedor no encontrado o con facturas asociadas' });
+    const { cedula_ruc } = req.params;
+    // Antes revisabas si existen facturas asociadas; con Sequelize podrías:
+    const facturas = await FacturaCompra.count({ where: { proveedor_cedula_ruc: cedula_ruc } });
+    if (facturas > 0) {
+      return res.status(400).json({ error: 'No se puede eliminar el proveedor porque tiene facturas asociadas.' });
+    }
+    const borrado = await Proveedor.destroy({ where: { cedula_ruc } });
+    if (!borrado) {
+      return res.status(404).json({ error: 'Proveedor no encontrado' });
     }
     res.json({ message: 'Proveedor eliminado correctamente' });
   } catch (err) {
-    if (err.code === '23503') {
-      // Código de error de llave foránea
-      return res.status(400).json({
-        error: 'No se puede eliminar el proveedor porque tiene facturas asociadas.'
-      });
-    }
     res.status(500).json({ error: err.message });
   }
 };

@@ -8,7 +8,6 @@ const getById = (id) => {
   return pool.query('SELECT * FROM configuracion_compras WHERE id = $1', [id]);
 };
 
-
 const create = (data) => {
   const { clave, valor, descripcion, usuario_modificacion } = data;
 

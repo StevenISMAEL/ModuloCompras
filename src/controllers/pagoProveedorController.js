@@ -1,9 +1,10 @@
-const model = require('../models/pagosProveedorModel');
+// src/controllers/pagoProveedorController.js
+const { PagosProveedor } = require('../models');
 
 exports.getAll = async (req, res) => {
   try {
-    const result = await model.getAll();
-    res.json(result.rows);
+    const pagos = await PagosProveedor.findAll();
+    res.json(pagos);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -11,11 +12,12 @@ exports.getAll = async (req, res) => {
 
 exports.getById = async (req, res) => {
   try {
-    const result = await model.getById(req.params.id);
-    if (result.rows.length === 0) {
+    const { id } = req.params;
+    const pago = await PagosProveedor.findByPk(id);
+    if (!pago) {
       return res.status(404).json({ error: 'Pago no encontrado' });
     }
-    res.json(result.rows[0]);
+    res.json(pago);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -23,8 +25,8 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const result = await model.create(req.body);
-    res.status(201).json(result.rows[0]);
+    const nuevo = await PagosProveedor.create(req.body);
+    res.status(201).json(nuevo);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -32,8 +34,13 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const result = await model.update(req.params.id, req.body);
-    res.json(result.rows[0]);
+    const { id } = req.params;
+    const pago = await PagosProveedor.findByPk(id);
+    if (!pago) {
+      return res.status(404).json({ error: 'Pago no encontrado' });
+    }
+    await pago.update(req.body);
+    res.json(pago);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -41,16 +48,12 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    await model.delete(req.params.id);
+    const { id } = req.params;
+    const borrado = await PagosProveedor.destroy({ where: { id } });
+    if (!borrado) {
+      return res.status(404).json({ error: 'Pago no encontrado' });
+    }
     res.json({ message: 'Pago eliminado correctamente' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-exports.getByProveedorId = async (req, res) => {
-  try {
-    const result = await model.getByProveedorId(req.params.id);
-    res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

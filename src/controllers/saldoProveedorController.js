@@ -1,9 +1,10 @@
-const model = require('../models/saldosProveedorModel');
+// src/controllers/saldoProveedorController.js
+const { SaldosProveedor, PagosProveedor } = require('../models');
 
 exports.getAll = async (req, res) => {
   try {
-    const result = await model.getAll();
-    res.json(result.rows);
+    const saldos = await SaldosProveedor.findAll();
+    res.json(saldos);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -11,11 +12,12 @@ exports.getAll = async (req, res) => {
 
 exports.getById = async (req, res) => {
   try {
-    const result = await model.getById(req.params.id);
-    if (result.rows.length === 0) {
+    const { id } = req.params;
+    const saldo = await SaldosProveedor.findByPk(id);
+    if (!saldo) {
       return res.status(404).json({ error: 'Saldo no encontrado' });
     }
-    res.json(result.rows[0]);
+    res.json(saldo);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -23,8 +25,8 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const result = await model.create(req.body);
-    res.status(201).json(result.rows[0]);
+    const nuevo = await SaldosProveedor.create(req.body);
+    res.status(201).json(nuevo);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -32,8 +34,13 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const result = await model.update(req.params.id, req.body);
-    res.json(result.rows[0]);
+    const { id } = req.params;
+    const saldo = await SaldosProveedor.findByPk(id);
+    if (!saldo) {
+      return res.status(404).json({ error: 'Saldo no encontrado' });
+    }
+    await saldo.update(req.body);
+    res.json(saldo);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -41,7 +48,15 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    await model.delete(req.params.id);
+    const { id } = req.params;
+    const pagos = await PagosProveedor.count({ where: { saldo_id: id } });
+    if (pagos > 0) {
+      return res.status(400).json({ error: 'No se puede eliminar el saldo porque tiene pagos asociados.' });
+    }
+    const borrado = await SaldosProveedor.destroy({ where: { id } });
+    if (!borrado) {
+      return res.status(404).json({ error: 'Saldo no encontrado' });
+    }
     res.json({ message: 'Saldo eliminado correctamente' });
   } catch (err) {
     res.status(500).json({ error: err.message });
