@@ -13,20 +13,24 @@ const {
 } = process.env;
 
 // Crea la instancia de Sequelize
-const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
-  host: DB_HOST,
-  port: DB_PORT,
-  dialect: 'postgres',
-  logging: false, // O true si quieres ver logs SQL
-  // schema: DB_SCHEMA, // si usas un schema específico
-  define: {
-    // Opciones globales para todos los modelos
-    // Para evitar pluralización automática si no se desea:
-    freezeTableName: false, // o true si quieres que el nombre de tabla sea exactamente igual al modelo
-    timestamps: false,     // Por defecto, activamos manualmente en cada modelo si es necesario
-  },
-});
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: 'mssql', // <--- ¡Debe decir 'mssql'!
 
+    // Opciones IMPORTANTES para Azure
+    dialectOptions: {
+      options: {
+        encrypt: true, // Azure requiere conexiones encriptadas
+        trustServerCertificate: false 
+      }
+    }
+  }
+);
 async function testConnection() {
   try {
     await sequelize.authenticate();

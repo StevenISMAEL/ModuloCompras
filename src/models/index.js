@@ -92,9 +92,9 @@ const PistaAuditoria = sequelize.define('PistaAuditoria', {
   tipo_accion: { type: DataTypes.STRING, allowNull: false },
   tabla_afectada: { type: DataTypes.STRING, allowNull: false },
   registro_id: { type: DataTypes.STRING, allowNull: false },
-  datos_anteriores: DataTypes.JSONB,
-  datos_nuevos: DataTypes.JSONB,
-  campos_modificados: DataTypes.ARRAY(DataTypes.STRING),
+  datos_anteriores: DataTypes.JSON, // <--- CAMBIO
+  datos_nuevos: DataTypes.JSON,     // <--- CAMBIO
+  campos_modificados: DataTypes.JSON, // <--- CAMBIO
   fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
 }, { tableName: 'pista_auditoria', timestamps: false });
 
