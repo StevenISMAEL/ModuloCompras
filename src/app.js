@@ -2,6 +2,7 @@
 
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors'); // Asegúrate de que cors esté importado
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./docs/swaggerConfig');
 
@@ -11,7 +12,7 @@ const app = express();
 // Middlewares
 app.use(express.json());
 app.use(morgan('dev'));  // Muestra en consola cada petición
-
+app.use(cors()); // <-- ¡ESTA LÍNEA ES CRUCIAL!
 // Documentación Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
