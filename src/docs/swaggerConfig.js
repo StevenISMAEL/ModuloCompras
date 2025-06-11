@@ -1,6 +1,23 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 require('dotenv').config();
 
+// --- INICIO DE LA CORRECCIÓN ---
+
+// 1. Determinar la URL del servidor dinámicamente.
+// Render crea automáticamente la variable de entorno RENDER_EXTERNAL_URL en producción.
+const serverUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
+
+// 2. Crear la lista de servidores que usará la definición de Swagger.
+const servers = [
+  {
+    url: serverUrl,
+    description: process.env.RENDER_EXTERNAL_URL ? 'Servidor de Producción (Render)' : 'Servidor de Desarrollo Local'
+  }
+];
+
+// --- FIN DE LA CORRECCIÓN ---
+
+
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
@@ -8,13 +25,11 @@ const swaggerDefinition = {
     version: process.env.SWAGGER_VERSION || '1.0.0',
     description: process.env.SWAGGER_DESCRIPTION || 'Documentación de la API de Compras'
   },
-  servers: [
-    {
-      url: `http://localhost:${process.env.PORT || 3000}`,
-      description: 'Servidor local'
-    }
-  ],
+  // 3. Usamos la lista de servidores dinámica que creamos arriba.
+  servers: servers,
   components: {
+    // TODA TU SECCIÓN DE SCHEMAS PERMANECE EXACTAMENTE IGUAL.
+    // NO HAY NADA QUE CAMBIAR AQUÍ.
     schemas: {
       Proveedor: {
         type: 'object',
