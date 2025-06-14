@@ -1,22 +1,24 @@
+// src/docs/swaggerConfig.js
+
 const swaggerJsdoc = require('swagger-jsdoc');
 require('dotenv').config();
 
 // --- INICIO DE LA CORRECCIÓN ---
 
 // 1. Determinar la URL del servidor dinámicamente.
-// Render crea automáticamente la variable de entorno RENDER_EXTERNAL_URL en producción.
-const serverUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
+// Plataformas como Railway o Render crean esta variable de entorno automáticamente.
+const serverUrl = process.env.RENDER_EXTERNAL_URL || process.env.RAILWAY_STATIC_URL || `http://localhost:${process.env.PORT || 3000}`;
 
-// 2. Crear la lista de servidores que usará la definición de Swagger.
+// 2. Crear la lista de servidores para la definición de Swagger.
 const servers = [
   {
     url: serverUrl,
-    description: process.env.RENDER_EXTERNAL_URL ? 'Servidor de Producción (Render)' : 'Servidor de Desarrollo Local'
+    // La descripción también será dinámica para que sepas a qué servidor apuntas.
+    description: (process.env.RENDER_EXTERNAL_URL || process.env.RAILWAY_STATIC_URL) ? 'Servidor de Producción' : 'Servidor de Desarrollo Local'
   }
 ];
 
 // --- FIN DE LA CORRECCIÓN ---
-
 
 const swaggerDefinition = {
   openapi: '3.0.0',
