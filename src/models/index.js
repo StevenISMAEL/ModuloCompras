@@ -14,10 +14,10 @@ const Proveedor = sequelize.define('Proveedor', {
   direccion: DataTypes.STRING,
   telefono: DataTypes.STRING,
   email: { type: DataTypes.STRING, validate: { isEmail: true } },
-  estado: { type: DataTypes.STRING, defaultValue: 'activo' },
-  usuario_creacion: DataTypes.STRING,
   fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  usuario_modificacion: DataTypes.STRING,
+  estado: { type: DataTypes.BOOLEAN, defaultValue: true }, // CORREGIDO
+  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO
+  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO
   fecha_modificacion: DataTypes.DATE
 }, { tableName: 'proveedores', timestamps: false });
 
@@ -34,9 +34,9 @@ const FacturaCompra = sequelize.define('FacturaCompra', {
   total: { type: DataTypes.DECIMAL, allowNull: false },
   estado: { type: DataTypes.STRING, defaultValue: 'pendiente' },
   observaciones: DataTypes.TEXT,
-  usuario_creacion: DataTypes.STRING,
+  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO
   fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  usuario_modificacion: DataTypes.STRING,
+  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO
   fecha_modificacion: DataTypes.DATE
 }, { tableName: 'facturas_compra', timestamps: false });
 
@@ -50,9 +50,9 @@ const FacturaDetalle = sequelize.define('FacturaDetalle', {
   subtotal: { type: DataTypes.DECIMAL, allowNull: false },
   iva: { type: DataTypes.DECIMAL, allowNull: false },
   total: { type: DataTypes.DECIMAL, allowNull: false },
-  usuario_creacion: DataTypes.STRING,
+  usuario_creacion: DataTypes.INTEGER,
   fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  usuario_modificacion: DataTypes.STRING,
+  usuario_modificacion: DataTypes.INTEGER,
   fecha_modificacion: DataTypes.DATE
 }, { tableName: 'facturas_compra_detalle', timestamps: false });
 
@@ -64,9 +64,9 @@ const SaldosProveedor = sequelize.define('SaldosProveedor', {
   saldo_pendiente: { type: DataTypes.DECIMAL, allowNull: false },
   fecha_vencimiento: DataTypes.DATEONLY,
   estado: { type: DataTypes.STRING, defaultValue: 'activo' },
-  usuario_creacion: DataTypes.STRING,
+  usuario_creacion: DataTypes.INTEGER,
   fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  usuario_modificacion: DataTypes.STRING,
+  usuario_modificacion: DataTypes.INTEGER,
   fecha_modificacion: DataTypes.DATE
 }, { tableName: 'saldos_proveedor', timestamps: false });
 
@@ -78,9 +78,9 @@ const PagosProveedor = sequelize.define('PagosProveedor', {
   metodo_pago: DataTypes.STRING,
   referencia_pago: DataTypes.STRING,
   observacion: DataTypes.TEXT,
-  usuario_creacion: DataTypes.STRING,
+  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO
   fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  usuario_modificacion: DataTypes.STRING,
+  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO (o eliminar si no se usa)
   fecha_modificacion: DataTypes.DATE
 }, { tableName: 'pagos_proveedor', timestamps: false });
 
@@ -103,7 +103,7 @@ const ConfiguracionCompras = sequelize.define('ConfiguracionCompras', {
   clave: { type: DataTypes.STRING, allowNull: false },
   valor: { type: DataTypes.STRING, allowNull: false },
   descripcion: DataTypes.TEXT,
-  usuario_modificacion: DataTypes.STRING,
+  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO
   fecha_modificacion: DataTypes.DATE
 }, { tableName: 'configuracion_compras', timestamps: false });
 
