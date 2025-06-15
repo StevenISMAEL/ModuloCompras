@@ -3,11 +3,6 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 require('dotenv').config();
 
-// Determina la URL del servidor dinámicamente.
-// Plataformas como Railway o Render crean estas variables de entorno automáticamente.
-const serverUrl = process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
-const serverDescription = (process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL) ? 'Servidor de Producción' : 'Servidor de Desarrollo Local';
-
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
@@ -15,12 +10,16 @@ const swaggerDefinition = {
     version: process.env.SWAGGER_VERSION || '1.0.0',
     description: process.env.SWAGGER_DESCRIPTION || 'Documentación de la API de Compras'
   },
+  // --- INICIO DE LA CORRECCIÓN ---
+  // Le decimos a Swagger que la API está en la raíz del mismo servidor.
+  // Esto funciona tanto para localhost como para la URL de producción.
   servers: [
     {
-      url: serverUrl,
-      description: serverDescription
+      url: '/',
+      description: 'Servidor Actual'
     }
   ],
+  // --- FIN DE LA CORRECCIÓN ---
   components: {
     schemas: {
       Proveedor: {
