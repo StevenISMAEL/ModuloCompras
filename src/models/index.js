@@ -14,10 +14,10 @@ const Proveedor = sequelize.define('Proveedor', {
   direccion: DataTypes.STRING,
   telefono: DataTypes.STRING,
   email: { type: DataTypes.STRING, validate: { isEmail: true } },
+  estado: { type: DataTypes.BOOLEAN, defaultValue: true }, // CORREGIDO: De STRING a BOOLEAN
+  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO: De STRING a INTEGER
   fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  estado: { type: DataTypes.BOOLEAN, defaultValue: true }, // CORREGIDO
-  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO
-  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO
+  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO: De STRING a INTEGER
   fecha_modificacion: DataTypes.DATE
 }, { tableName: 'proveedores', timestamps: false });
 
@@ -34,9 +34,9 @@ const FacturaCompra = sequelize.define('FacturaCompra', {
   total: { type: DataTypes.DECIMAL, allowNull: false },
   estado: { type: DataTypes.STRING, defaultValue: 'pendiente' },
   observaciones: DataTypes.TEXT,
-  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO
+  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO: De STRING a INTEGER
   fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO
+  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO: De STRING a INTEGER
   fecha_modificacion: DataTypes.DATE
 }, { tableName: 'facturas_compra', timestamps: false });
 
@@ -50,10 +50,9 @@ const FacturaDetalle = sequelize.define('FacturaDetalle', {
   subtotal: { type: DataTypes.DECIMAL, allowNull: false },
   iva: { type: DataTypes.DECIMAL, allowNull: false },
   total: { type: DataTypes.DECIMAL, allowNull: false },
-  usuario_creacion: DataTypes.INTEGER,
-  fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  usuario_modificacion: DataTypes.INTEGER,
-  fecha_modificacion: DataTypes.DATE
+  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO (ya lo tenías bien)
+  fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+  // Se eliminó usuario_modificacion y fecha_modificacion porque no están en el script de la BD para esta tabla
 }, { tableName: 'facturas_compra_detalle', timestamps: false });
 
 const SaldosProveedor = sequelize.define('SaldosProveedor', {
@@ -64,9 +63,9 @@ const SaldosProveedor = sequelize.define('SaldosProveedor', {
   saldo_pendiente: { type: DataTypes.DECIMAL, allowNull: false },
   fecha_vencimiento: DataTypes.DATEONLY,
   estado: { type: DataTypes.STRING, defaultValue: 'activo' },
-  usuario_creacion: DataTypes.INTEGER,
+  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO (ya lo tenías bien)
   fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  usuario_modificacion: DataTypes.INTEGER,
+  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO (ya lo tenías bien)
   fecha_modificacion: DataTypes.DATE
 }, { tableName: 'saldos_proveedor', timestamps: false });
 
@@ -78,10 +77,9 @@ const PagosProveedor = sequelize.define('PagosProveedor', {
   metodo_pago: DataTypes.STRING,
   referencia_pago: DataTypes.STRING,
   observacion: DataTypes.TEXT,
-  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO
-  fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO (o eliminar si no se usa)
-  fecha_modificacion: DataTypes.DATE
+  usuario_creacion: { type: DataTypes.INTEGER, allowNull: false }, // CORREGIDO: De STRING a INTEGER
+  fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+  // Se eliminó usuario_modificacion y fecha_modificacion porque no están en el script de la BD para esta tabla
 }, { tableName: 'pagos_proveedor', timestamps: false });
 
 const PistaAuditoria = sequelize.define('PistaAuditoria', {
@@ -92,9 +90,9 @@ const PistaAuditoria = sequelize.define('PistaAuditoria', {
   tipo_accion: { type: DataTypes.STRING, allowNull: false },
   tabla_afectada: { type: DataTypes.STRING, allowNull: false },
   registro_id: { type: DataTypes.STRING, allowNull: false },
-  datos_anteriores: DataTypes.JSON, // <--- CAMBIO
-  datos_nuevos: DataTypes.JSON,     // <--- CAMBIO
-  campos_modificados: DataTypes.JSON, // <--- CAMBIO
+  datos_anteriores: DataTypes.JSON, // Correcto para SQL Server
+  datos_nuevos: DataTypes.JSON,     // Correcto para SQL Server
+  campos_modificados: DataTypes.JSON, // Correcto para SQL Server
   fecha_creacion: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
 }, { tableName: 'pista_auditoria', timestamps: false });
 
@@ -103,7 +101,7 @@ const ConfiguracionCompras = sequelize.define('ConfiguracionCompras', {
   clave: { type: DataTypes.STRING, allowNull: false },
   valor: { type: DataTypes.STRING, allowNull: false },
   descripcion: DataTypes.TEXT,
-  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO
+  usuario_modificacion: DataTypes.INTEGER, // CORREGIDO: De STRING a INTEGER
   fecha_modificacion: DataTypes.DATE
 }, { tableName: 'configuracion_compras', timestamps: false });
 
