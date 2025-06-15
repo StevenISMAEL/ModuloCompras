@@ -3,22 +3,10 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 require('dotenv').config();
 
-// --- INICIO DE LA CORRECCIÓN ---
-
-// 1. Determinar la URL del servidor dinámicamente.
-// Plataformas como Railway o Render crean esta variable de entorno automáticamente.
-const serverUrl = process.env.RENDER_EXTERNAL_URL || process.env.RAILWAY_STATIC_URL || `http://localhost:${process.env.PORT || 3000}`;
-
-// 2. Crear la lista de servidores para la definición de Swagger.
-const servers = [
-  {
-    url: serverUrl,
-    // La descripción también será dinámica para que sepas a qué servidor apuntas.
-    description: (process.env.RENDER_EXTERNAL_URL || process.env.RAILWAY_STATIC_URL) ? 'Servidor de Producción' : 'Servidor de Desarrollo Local'
-  }
-];
-
-// --- FIN DE LA CORRECCIÓN ---
+// Determina la URL del servidor dinámicamente.
+// Plataformas como Railway o Render crean estas variables de entorno automáticamente.
+const serverUrl = process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
+const serverDescription = (process.env.RAILWAY_STATIC_URL || process.env.RENDER_EXTERNAL_URL) ? 'Servidor de Producción' : 'Servidor de Desarrollo Local';
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -27,11 +15,13 @@ const swaggerDefinition = {
     version: process.env.SWAGGER_VERSION || '1.0.0',
     description: process.env.SWAGGER_DESCRIPTION || 'Documentación de la API de Compras'
   },
-  // 3. Usamos la lista de servidores dinámica que creamos arriba.
-  servers: servers,
+  servers: [
+    {
+      url: serverUrl,
+      description: serverDescription
+    }
+  ],
   components: {
-    // TODA TU SECCIÓN DE SCHEMAS PERMANECE EXACTAMENTE IGUAL.
-    // NO HAY NADA QUE CAMBIAR AQUÍ.
     schemas: {
       Proveedor: {
         type: 'object',
