@@ -28,7 +28,7 @@ const swaggerDefinition = {
           cedula_ruc: { type: 'string' },
           nombre: { type: 'string' },
           ciudad: { type: 'string' },
-          tipo_proveedor: { type: 'string', enum: ['Crédito','Contado'] },
+          tipo_proveedor: { type: 'string', enum: ['Crédito', 'Contado'] },
           direccion: { type: 'string' },
           telefono: { type: 'string' },
           email: { type: 'string', format: 'email' },
@@ -41,12 +41,12 @@ const swaggerDefinition = {
       },
       ProveedorCreate: {
         type: 'object',
-        required: ['cedula_ruc','nombre','ciudad','tipo_proveedor','direccion','telefono','email','usuario_creacion'],
+        required: ['cedula_ruc', 'nombre', 'ciudad', 'tipo_proveedor', 'direccion', 'telefono', 'email', 'usuario_creacion'],
         properties: {
           cedula_ruc: { type: 'string', example: '0912345678' },
           nombre: { type: 'string', example: 'Proveedor Ejemplo S.A.' },
           ciudad: { type: 'string', example: 'Quito' },
-          tipo_proveedor: { type: 'string', enum: ['Crédito','Contado'], example: 'Crédito' },
+          tipo_proveedor: { type: 'string', enum: ['Crédito', 'Contado'], example: 'Crédito' },
           direccion: { type: 'string', example: 'Av. Siempre Viva 123' },
           telefono: { type: 'string', example: '0991234567' },
           email: { type: 'string', format: 'email', example: 'contacto@proveedor-ejemplo.com' },
@@ -59,7 +59,7 @@ const swaggerDefinition = {
         properties: {
           nombre: { type: 'string', example: 'Proveedor Actualizado S.A.' },
           ciudad: { type: 'string', example: 'Guayaquil' },
-          tipo_proveedor: { type: 'string', enum: ['Crédito','Contado'], example: 'Contado' },
+          tipo_proveedor: { type: 'string', enum: ['Crédito', 'Contado'], example: 'Contado' },
           direccion: { type: 'string', example: 'Calle Falsa 456' },
           telefono: { type: 'string', example: '0987654321' },
           email: { type: 'string', format: 'email', example: 'nuevo@proveedor.com' },
@@ -75,12 +75,12 @@ const swaggerDefinition = {
           numero_factura_proveedor: { type: 'string', example: '001-001-0000100' },
           fecha_emision: { type: 'string', format: 'date', example: '2025-06-11' },
           proveedor_cedula_ruc: { type: 'string', example: '0912345678' },
-          tipo_pago: { type: 'string', enum: ['Crédito','Contado'], example: 'Crédito' },
+          tipo_pago: { type: 'string', enum: ['Crédito', 'Contado'], example: 'Crédito' },
           fecha_vencimiento: { type: 'string', format: 'date', nullable: true, example: '2025-07-11' },
           subtotal: { type: 'number', example: 1500.50 },
           iva: { type: 'number', example: 180.06 },
           total: { type: 'number', example: 1680.56 },
-          estado: { type: 'string', enum: ['Registrada','Impresa','Cancelada'], example: 'Registrada' },
+          estado: { type: 'string', enum: ['Registrada', 'Impresa', 'Cancelada'], example: 'Registrada' },
           impresion_realizada: { type: 'boolean', example: false },
           fecha_impresion: { type: 'string', format: 'date-time', nullable: true, example: '2025-06-11T10:00:00Z' },
           observaciones: { type: 'string', nullable: true, example: 'Compra de insumos oficina' },
@@ -92,18 +92,18 @@ const swaggerDefinition = {
       },
       FacturaCompraCreate: {
         type: 'object',
-        required: ['numero_factura','numero_factura_proveedor','fecha_emision','proveedor_cedula_ruc','tipo_pago','subtotal','iva','total','usuario_creacion'],
+        required: ['numero_factura', 'numero_factura_proveedor', 'fecha_emision', 'proveedor_cedula_ruc', 'tipo_pago', 'subtotal', 'iva', 'total', 'usuario_creacion'],
         properties: {
           numero_factura: { type: 'string', example: 'FAC-100' },
           numero_factura_proveedor: { type: 'string', example: '001-001-0000100' },
           fecha_emision: { type: 'string', format: 'date', example: '2025-06-11' },
           proveedor_cedula_ruc: { type: 'string', example: '0912345678' },
-          tipo_pago: { type: 'string', enum: ['Crédito','Contado'], example: 'Crédito' },
+          tipo_pago: { type: 'string', enum: ['Crédito', 'Contado'], example: 'Crédito' },
           fecha_vencimiento: { type: 'string', format: 'date', example: '2025-07-11' },
           subtotal: { type: 'number', example: 1500.50 },
           iva: { type: 'number', example: 180.06 },
           total: { type: 'number', example: 1680.56 },
-          estado: { type: 'string', enum: ['Registrada','Impresa','Cancelada'], example: 'Registrada' },
+          estado: { type: 'string', enum: ['Registrada', 'Impresa', 'Cancelada'], example: 'Registrada' },
           impresion_realizada: { type: 'boolean', example: false },
           fecha_impresion: { type: 'string', format: 'date-time', example: '2025-06-11T10:00:00Z' },
           observaciones: { type: 'string', example: 'Compra de insumos oficina' },
@@ -117,12 +117,12 @@ const swaggerDefinition = {
           numero_factura_proveedor: { type: 'string', example: '001-001-0000100A' },
           fecha_emision: { type: 'string', format: 'date', example: '2025-06-12' },
           proveedor_cedula_ruc: { type: 'string', example: '0912345678' },
-          tipo_pago: { type: 'string', enum: ['Crédito','Contado'], example: 'Contado' },
+          tipo_pago: { type: 'string', enum: ['Crédito', 'Contado'], example: 'Contado' },
           fecha_vencimiento: { type: 'string', format: 'date', example: '2025-06-12' },
           subtotal: { type: 'number', example: 1600.00 },
           iva: { type: 'number', example: 192.00 },
           total: { type: 'number', example: 1792.00 },
-          estado: { type: 'string', enum: ['Registrada','Impresa','Cancelada'], example: 'Impresa' },
+          estado: { type: 'string', enum: ['Registrada', 'Impresa', 'Cancelada'], example: 'Impresa' },
           impresion_realizada: { type: 'boolean', example: true },
           fecha_impresion: { type: 'string', format: 'date-time', example: '2025-06-12T10:00:00Z' },
           observaciones: { type: 'string', example: 'Actualización de monto y estado' },
@@ -135,6 +135,7 @@ const swaggerDefinition = {
           id: { type: 'integer', example: 1 },
           factura_id: { type: 'integer', example: 1 },
           producto_id: { type: 'integer', example: 42 },
+          nombre_producto: { type: 'string', example: 'Teclado Mecánico' }, 
           cantidad: { type: 'integer', example: 10 },
           precio_unitario: { type: 'number', example: 15.75 },
           aplica_iva: { type: 'boolean', example: true },
@@ -147,10 +148,11 @@ const swaggerDefinition = {
       },
       FacturaDetalleCreate: {
         type: 'object',
-        required: ['factura_id','producto_id','cantidad','precio_unitario','aplica_iva','subtotal','iva','total','usuario_creacion'],
+        required: ['factura_id', 'producto_id', 'cantidad', 'precio_unitario', 'aplica_iva', 'subtotal', 'iva', 'total', 'usuario_creacion'],
         properties: {
           factura_id: { type: 'integer', example: 1 },
           producto_id: { type: 'integer', example: 42 },
+          nombre_producto: { type: 'string', example: 'Teclado Mecánico' },
           cantidad: { type: 'integer', example: 10 },
           precio_unitario: { type: 'number', example: 15.75 },
           aplica_iva: { type: 'boolean', example: true },
@@ -165,6 +167,7 @@ const swaggerDefinition = {
         properties: {
           factura_id: { type: 'integer', example: 1 },
           producto_id: { type: 'integer', example: 43 },
+          nombre_producto: { type: 'string', example: 'Teclado Mecánico' },
           cantidad: { type: 'integer', example: 12 },
           precio_unitario: { type: 'number', example: 16.00 },
           aplica_iva: { type: 'boolean', example: false },
@@ -183,7 +186,7 @@ const swaggerDefinition = {
           monto_original: { type: 'number', example: 1680.56 },
           saldo_pendiente: { type: 'number', example: 1680.56 },
           fecha_vencimiento: { type: 'string', format: 'date', example: '2025-07-11' },
-          estado: { type: 'string', enum: ['Pendiente','Pagado','Vencido'], example: 'Pendiente' },
+          estado: { type: 'string', enum: ['Pendiente', 'Pagado', 'Vencido'], example: 'Pendiente' },
           fecha_creacion: { type: 'string', format: 'date-time', example: '2025-06-11T12:15:00Z' },
           fecha_modificacion: { type: 'string', format: 'date-time', nullable: true },
           usuario_creacion: { type: 'integer', example: 1 },
@@ -192,14 +195,14 @@ const swaggerDefinition = {
       },
       SaldoProveedorCreate: {
         type: 'object',
-        required: ['proveedor_cedula_ruc','factura_id','monto_original','saldo_pendiente','fecha_vencimiento','usuario_creacion'],
+        required: ['proveedor_cedula_ruc', 'factura_id', 'monto_original', 'saldo_pendiente', 'fecha_vencimiento', 'usuario_creacion'],
         properties: {
           proveedor_cedula_ruc: { type: 'string', example: '0912345678' },
           factura_id: { type: 'integer', example: 1 },
           monto_original: { type: 'number', example: 1680.56 },
           saldo_pendiente: { type: 'number', example: 1680.56 },
           fecha_vencimiento: { type: 'string', format: 'date', example: '2025-07-11' },
-          estado: { type: 'string', enum: ['Pendiente','Pagado','Vencido'], example: 'Pendiente' },
+          estado: { type: 'string', enum: ['Pendiente', 'Pagado', 'Vencido'], example: 'Pendiente' },
           usuario_creacion: { type: 'integer', example: 1 }
         }
       },
@@ -211,7 +214,7 @@ const swaggerDefinition = {
           monto_original: { type: 'number', example: 1680.56 },
           saldo_pendiente: { type: 'number', example: 1180.56 },
           fecha_vencimiento: { type: 'string', format: 'date', example: '2025-07-15' },
-          estado: { type: 'string', enum: ['Pendiente','Pagado','Vencido'], example: 'Pagado' },
+          estado: { type: 'string', enum: ['Pendiente', 'Pagado', 'Vencido'], example: 'Pagado' },
           usuario_modificacion: { type: 'integer', example: 1 }
         }
       },
@@ -231,7 +234,7 @@ const swaggerDefinition = {
       },
       PagoProveedorCreate: {
         type: 'object',
-        required: ['saldo_id','monto','fecha_pago','metodo_pago','usuario_creacion'],
+        required: ['saldo_id', 'monto', 'fecha_pago', 'metodo_pago', 'usuario_creacion'],
         properties: {
           saldo_id: { type: 'integer', example: 1 },
           monto: { type: 'number', example: 500.00 },
@@ -267,12 +270,12 @@ const swaggerDefinition = {
           registro_id: { type: 'integer', example: 1 },
           datos_anteriores: { type: 'object', nullable: true },
           datos_nuevos: { type: 'object', nullable: true },
-          campos_modificados: { type: 'array', items: { type: 'string' }, example: ['numero_factura','proveedor_cedula_ruc'] }
+          campos_modificados: { type: 'array', items: { type: 'string' }, example: ['numero_factura', 'proveedor_cedula_ruc'] }
         }
       },
       PistaAuditoriaCreate: {
         type: 'object',
-        required: ['usuario_id','usuario_nombre','rol','tipo_accion','tabla_afectada','registro_id','campos_modificados'],
+        required: ['usuario_id', 'usuario_nombre', 'rol', 'tipo_accion', 'tabla_afectada', 'registro_id', 'campos_modificados'],
         properties: {
           usuario_id: { type: 'integer', example: 1 },
           usuario_nombre: { type: 'string', example: 'admin' },
@@ -282,7 +285,7 @@ const swaggerDefinition = {
           registro_id: { type: 'integer', example: 1 },
           datos_anteriores: { type: 'object', nullable: true },
           datos_nuevos: { type: 'object', nullable: true },
-          campos_modificados: { type: 'array', items: { type: 'string' }, example: ['numero_factura','proveedor_cedula_ruc'] }
+          campos_modificados: { type: 'array', items: { type: 'string' }, example: ['numero_factura', 'proveedor_cedula_ruc'] }
         }
       },
       ConfiguracionCompra: {
@@ -298,7 +301,7 @@ const swaggerDefinition = {
       },
       ConfiguracionCompraCreate: {
         type: 'object',
-        required: ['clave','valor','usuario_modificacion'],
+        required: ['clave', 'valor', 'usuario_modificacion'],
         properties: {
           clave: { type: 'string', example: 'max_descuento' },
           valor: { type: 'string', example: '15%' },
@@ -326,7 +329,7 @@ const swaggerDefinition = {
       },
       TokensApiCreate: {
         type: 'object',
-        required: ['usuario_id','token','fecha_expiracion'],
+        required: ['usuario_id', 'token', 'fecha_expiracion'],
         properties: {
           usuario_id: { type: 'integer', example: 1 },
           token: { type: 'string', example: 'abcdef1234567890abcdef' },
