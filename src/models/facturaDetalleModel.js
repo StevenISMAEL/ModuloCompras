@@ -14,6 +14,7 @@ const facturaDetalleModel = {
     const {
       factura_id,
       producto_id,
+      nombre_producto, // <-- Agregado
       cantidad,
       precio_unitario,
       aplica_iva,
@@ -25,13 +26,13 @@ const facturaDetalleModel = {
 
     const query = `
       INSERT INTO facturas_compra_detalle (
-        factura_id, producto_id, cantidad, precio_unitario,
+        factura_id, producto_id, nombre_producto, cantidad, precio_unitario,
         aplica_iva, subtotal, iva, total, usuario_creacion
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *;
     `;
     const values = [
-      factura_id, producto_id, cantidad, precio_unitario,
+      factura_id, producto_id, nombre_producto, cantidad, precio_unitario,
       aplica_iva, subtotal, iva, total, usuario_creacion
     ];
     return db.query(query, values);
@@ -41,6 +42,7 @@ const facturaDetalleModel = {
     const {
       factura_id,
       producto_id,
+      nombre_producto, // <-- Agregado
       cantidad,
       precio_unitario,
       aplica_iva,
@@ -53,17 +55,18 @@ const facturaDetalleModel = {
       UPDATE facturas_compra_detalle
       SET factura_id = $1,
           producto_id = $2,
-          cantidad = $3,
-          precio_unitario = $4,
-          aplica_iva = $5,
-          subtotal = $6,
-          iva = $7,
-          total = $8
-      WHERE id = $9
+          nombre_producto = $3,
+          cantidad = $4,
+          precio_unitario = $5,
+          aplica_iva = $6,
+          subtotal = $7,
+          iva = $8,
+          total = $9
+      WHERE id = $10
       RETURNING *;
     `;
     const values = [
-      factura_id, producto_id, cantidad, precio_unitario,
+      factura_id, producto_id, nombre_producto, cantidad, precio_unitario,
       aplica_iva, subtotal, iva, total, id
     ];
     return db.query(query, values);

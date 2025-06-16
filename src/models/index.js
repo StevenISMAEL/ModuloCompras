@@ -44,6 +44,10 @@ const FacturaDetalle = sequelize.define('FacturaDetalle', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   factura_id: { type: DataTypes.INTEGER, allowNull: false },
   producto_id: { type: DataTypes.INTEGER, allowNull: false },
+  nombre_producto: {
+    type: DataTypes.STRING(255),
+    allowNull: true // Se corresponde con el `NULL` que definimos en la base de datos
+  },
   cantidad: { type: DataTypes.INTEGER, allowNull: false },
   precio_unitario: { type: DataTypes.DECIMAL, allowNull: false },
   aplica_iva: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
