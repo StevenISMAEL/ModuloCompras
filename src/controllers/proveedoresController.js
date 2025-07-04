@@ -1,11 +1,11 @@
 const { Proveedor, FacturaCompra } = require("../models");
 const axios = require("axios");
 
-// URL DE MI API
+// URL DE LA API DE AUDITORÍA
 const AUDITORIA_URL =
   "https://aplicacion-de-seguridad-v2.onrender.com/api/auditoria";
 
-// Función PARA ENVIAR AUDITORIA
+// Función genérica para enviar auditoría
 const enviarAuditoria = async ({
   accion,
   modulo = "compras",
@@ -16,7 +16,7 @@ const enviarAuditoria = async ({
 }) => {
   try {
     await axios.post(AUDITORIA_URL, {
-      accion,
+      accion: accion.toUpperCase(), // fuerza a mayúsculas
       modulo,
       tabla,
       id_usuario,
@@ -28,38 +28,41 @@ const enviarAuditoria = async ({
   }
 };
 
+/* ------------------------------------------------------------------ */
+/* CRUD + AUDITORÍA                                                   */
+/* ------------------------------------------------------------------ */
+
+// Listar todos los proveedores
 exports.getAll = async (req, res) => {
   try {
     const proveedores = await Proveedor.findAll();
+
     await enviarAuditoria({
-      accion: "consulta",
+      accion: "CONSULTA",
       id_usuario: req.usuario?.id || null,
-      details: {
-        tipo: "listar todos los proveedores",
-      },
+      details: { tipo: "listar todos los proveedores" },
       nombre_rol: req.usuario?.rol || "Sistema",
     });
+
     res.json(proveedores);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
+// Obtener proveedor por ID
 exports.getById = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
     const proveedor = await Proveedor.findByPk(cedula_ruc);
-
     if (!proveedor) {
       return res.status(404).json({ error: "Proveedor no encontrado" });
     }
+
     await enviarAuditoria({
-      accion: "consulta",
+      accion: "CONSULTA",
       id_usuario: req.usuario?.id || null,
-      details: {
-        tipo: "consulta individual",
-        cedula_ruc: cedula_ruc,
-      },
+      details: { tipo: "consulta individual", cedula_ruc },
       nombre_rol: req.usuario?.rol || "Sistema",
     });
 
@@ -69,18 +72,15 @@ exports.getById = async (req, res) => {
   }
 };
 
+// Crear proveedor
 exports.create = async (req, res) => {
   try {
     const nuevo = await Proveedor.create(req.body);
 
-    // ENVIAR AUDITORIAS
     await enviarAuditoria({
-      accion: "crear",
+      accion: "CREAR",
       id_usuario: req.usuario?.id || null,
-      details: {
-        antes: null,
-        despues: nuevo,
-      },
+      details: { antes: null, despues: nuevo },
       nombre_rol: req.usuario?.rol || "Sistema",
     });
 
@@ -102,17 +102,12 @@ exports.update = async (req, res) => {
     }
 
     const datosAntes = { ...proveedor.get() };
-
     await proveedor.update(req.body);
 
-    // ENVIAR AUDITORIAS
     await enviarAuditoria({
-      accion: "actualizar",
+      accion: "ACTUALIZAR",
       id_usuario: req.usuario?.id || null,
-      details: {
-        antes: datosAntes,
-        despues: req.body,
-      },
+      details: { antes: datosAntes, despues: req.body },
       nombre_rol: req.usuario?.rol || "Sistema",
     });
 
@@ -122,10 +117,12 @@ exports.update = async (req, res) => {
   }
 };
 
+// Eliminar proveedor
 exports.delete = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
 
+    // Evitar borrar si posee facturas asociadas
     const facturas = await FacturaCompra.count({
       where: { proveedor_cedula_ruc: cedula_ruc },
     });
@@ -141,13 +138,10 @@ exports.delete = async (req, res) => {
       return res.status(404).json({ error: "Proveedor no encontrado" });
     }
 
-    // Enviar auditoría
     await enviarAuditoria({
-      accion: "eliminar",
+      accion: "ELIMINAR",
       id_usuario: req.usuario?.id || null,
-      details: {
-        eliminado: cedula_ruc,
-      },
+      details: { eliminado: cedula_ruc },
       nombre_rol: req.usuario?.rol || "Sistema",
     });
 

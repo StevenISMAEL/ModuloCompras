@@ -1,23 +1,20 @@
-// src/controllers/FacturaCompraDetalleController.js
 const { FacturaDetalle } = require("../models");
 const axios = require("axios");
 
-// URL DE LA API DE AUDITORÍA
 const AUDITORIA_URL =
   "https://aplicacion-de-seguridad-v2.onrender.com/api/auditoria";
 
-// Función genérica para enviar auditoría (igual que en tus otros controladores)
 const enviarAuditoria = async ({
   accion,
   modulo = "compras",
-  tabla = "facturas_detalle", // ajusta el nombre si tu back espera otro
+  tabla = "facturas_detalle",
   id_usuario = null,
   details = {},
   nombre_rol = "Sistema",
 }) => {
   try {
     await axios.post(AUDITORIA_URL, {
-      accion,
+      accion: accion.toUpperCase(),
       modulo,
       tabla,
       id_usuario,
@@ -29,13 +26,17 @@ const enviarAuditoria = async ({
   }
 };
 
-/* ------------------------------------------------------------------ */
-/* CRUD                                                               */
-/* ------------------------------------------------------------------ */
-
 exports.getAll = async (req, res) => {
   try {
     const detalles = await FacturaDetalle.findAll();
+
+    await enviarAuditoria({
+      accion: "CONSULTA",
+      id_usuario: req.usuario?.id || null,
+      details: { tipo: "listar todos los detalles" },
+      nombre_rol: req.usuario?.rol || "Sistema",
+    });
+
     res.json(detalles);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -49,6 +50,14 @@ exports.getById = async (req, res) => {
     if (!detalle) {
       return res.status(404).json({ error: "Detalle no encontrado" });
     }
+
+    await enviarAuditoria({
+      accion: "CONSULTA",
+      id_usuario: req.usuario?.id || null,
+      details: { tipo: "consulta individual", id },
+      nombre_rol: req.usuario?.rol || "Sistema",
+    });
+
     res.json(detalle);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -59,9 +68,8 @@ exports.create = async (req, res) => {
   try {
     const nuevo = await FacturaDetalle.create(req.body);
 
-    // AUDITORÍA: crear
     await enviarAuditoria({
-      accion: "crear",
+      accion: "CREAR",
       id_usuario: req.usuario?.id || null,
       details: { antes: null, despues: nuevo },
       nombre_rol: req.usuario?.rol || "Sistema",
@@ -84,9 +92,8 @@ exports.update = async (req, res) => {
     const datosAntes = { ...detalle.get() };
     await detalle.update(req.body);
 
-    // AUDITORÍA: actualizar
     await enviarAuditoria({
-      accion: "actualizar",
+      accion: "ACTUALIZAR",
       id_usuario: req.usuario?.id || null,
       details: { antes: datosAntes, despues: req.body },
       nombre_rol: req.usuario?.rol || "Sistema",
@@ -106,9 +113,8 @@ exports.delete = async (req, res) => {
       return res.status(404).json({ error: "Detalle no encontrado" });
     }
 
-    // AUDITORÍA: eliminar
     await enviarAuditoria({
-      accion: "eliminar",
+      accion: "ELIMINAR",
       id_usuario: req.usuario?.id || null,
       details: { eliminado: id },
       nombre_rol: req.usuario?.rol || "Sistema",

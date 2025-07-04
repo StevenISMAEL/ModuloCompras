@@ -1,23 +1,20 @@
-// src/controllers/FacturaCompraController.js
 const { FacturaCompra, FacturaDetalle } = require("../models");
 const axios = require("axios");
 
-// URL DE LA API DE AUDITORÍA
 const AUDITORIA_URL =
   "https://aplicacion-de-seguridad-v2.onrender.com/api/auditoria";
 
-// Función genérica para enviar auditoría
 const enviarAuditoria = async ({
   accion,
   modulo = "compras",
-  tabla = "facturas_compra", // ajusta si tu backend espera otro nombre
+  tabla = "facturas_compra",
   id_usuario = null,
   details = {},
   nombre_rol = "Sistema",
 }) => {
   try {
     await axios.post(AUDITORIA_URL, {
-      accion,
+      accion: accion.toUpperCase(),
       modulo,
       tabla,
       id_usuario,
@@ -29,13 +26,17 @@ const enviarAuditoria = async ({
   }
 };
 
-// ------------------------------------------------------------------
-// CRUD
-// ------------------------------------------------------------------
-
 exports.getAll = async (req, res) => {
   try {
     const facturas = await FacturaCompra.findAll();
+
+    await enviarAuditoria({
+      accion: "CONSULTA",
+      id_usuario: req.usuario?.id || null,
+      details: { tipo: "listar todas las facturas" },
+      nombre_rol: req.usuario?.rol || "Sistema",
+    });
+
     res.json(facturas);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -51,6 +52,14 @@ exports.getById = async (req, res) => {
     if (!factura) {
       return res.status(404).json({ error: "Factura no encontrada" });
     }
+
+    await enviarAuditoria({
+      accion: "CONSULTA",
+      id_usuario: req.usuario?.id || null,
+      details: { tipo: "consulta individual", id },
+      nombre_rol: req.usuario?.rol || "Sistema",
+    });
+
     res.json(factura);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -61,9 +70,8 @@ exports.create = async (req, res) => {
   try {
     const nueva = await FacturaCompra.create(req.body);
 
-    // AUDITORÍA: crear
     await enviarAuditoria({
-      accion: "crear",
+      accion: "CREAR",
       id_usuario: req.usuario?.id || null,
       details: { antes: null, despues: nueva },
       nombre_rol: req.usuario?.rol || "Sistema",
@@ -86,9 +94,8 @@ exports.update = async (req, res) => {
     const datosAntes = { ...factura.get() };
     await factura.update(req.body);
 
-    // AUDITORÍA: actualizar
     await enviarAuditoria({
-      accion: "actualizar",
+      accion: "ACTUALIZAR",
       id_usuario: req.usuario?.id || null,
       details: { antes: datosAntes, despues: req.body },
       nombre_rol: req.usuario?.rol || "Sistema",
@@ -104,7 +111,6 @@ exports.delete = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Evita borrar si tiene detalles vinculados
     const detalles = await FacturaDetalle.count({ where: { factura_id: id } });
     if (detalles > 0) {
       return res.status(400).json({
@@ -118,9 +124,8 @@ exports.delete = async (req, res) => {
       return res.status(404).json({ error: "Factura no encontrada" });
     }
 
-    // AUDITORÍA: eliminar
     await enviarAuditoria({
-      accion: "eliminar",
+      accion: "ELIMINAR",
       id_usuario: req.usuario?.id || null,
       details: { eliminado: id },
       nombre_rol: req.usuario?.rol || "Sistema",
