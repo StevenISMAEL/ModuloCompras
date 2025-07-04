@@ -31,6 +31,14 @@ const enviarAuditoria = async ({
 exports.getAll = async (req, res) => {
   try {
     const proveedores = await Proveedor.findAll();
+    await enviarAuditoria({
+      accion: "consulta",
+      id_usuario: req.usuario?.id || null,
+      details: {
+        tipo: "listar todos los proveedores",
+      },
+      nombre_rol: req.usuario?.rol || "Sistema",
+    });
     res.json(proveedores);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -41,9 +49,20 @@ exports.getById = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
     const proveedor = await Proveedor.findByPk(cedula_ruc);
+
     if (!proveedor) {
       return res.status(404).json({ error: "Proveedor no encontrado" });
     }
+    await enviarAuditoria({
+      accion: "consulta",
+      id_usuario: req.usuario?.id || null,
+      details: {
+        tipo: "consulta individual",
+        cedula_ruc: cedula_ruc,
+      },
+      nombre_rol: req.usuario?.rol || "Sistema",
+    });
+
     res.json(proveedor);
   } catch (err) {
     res.status(500).json({ error: err.message });
