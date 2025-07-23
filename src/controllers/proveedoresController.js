@@ -1,3 +1,4 @@
+// src/controllers/proveedoresController.js
 const { Proveedor, FacturaCompra } = require("../models");
 const axios = require("axios");
 
@@ -10,7 +11,7 @@ const enviarAuditoria = async ({
   accion,
   modulo = "compras",
   tabla = "proveedores",
-  id_usuario = null, // Aquí asignas null por defecto
+  id_usuario = null,
   details = {},
   nombre_rol = "Sistema",
 }) => {
@@ -28,35 +29,27 @@ const enviarAuditoria = async ({
   }
 };
 
-// Función para extraer el token de los encabezados (solo para auditoría, sin autenticación)
-const obtenerToken = (req) => {
-  const authHeader = req.headers.authorization;
-  console.log("Header authorization:", authHeader); // Depuración
-  return authHeader && authHeader.startsWith("Bearer ")
-    ? authHeader.split(" ")[1]
-    : "Sin token";
-};
-
 // Listar todos los proveedores
 exports.getAll = async (req, res) => {
   try {
     const proveedores = await Proveedor.findAll();
-    const token = obtenerToken(req);
+    const token = req.headers.authorization?.split(" ")[1] || "Sin token";
 
     await enviarAuditoria({
       accion: "CONSULTA",
-      id_usuario: null,
+      id_usuario: req.usuario?.id_usuario || null,
       details: {
         tipo: "consulta general",
         token,
-        usuario_autenticado: "Sin usuario autenticado",
+        usuario_autenticado: req.usuario?.usuario || "Sin usuario autenticado",
       },
-      nombre_rol: "Sistema",
+      nombre_rol: req.usuario?.nombre_rol || "Sistema",
     });
 
     res.json(proveedores);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error en getAll:", err);
+    res.status(500).json({ mensaje: "Error del servidor", error: err.message });
   }
 };
 
@@ -65,27 +58,28 @@ exports.getById = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
     const proveedor = await Proveedor.findByPk(cedula_ruc);
-    const token = obtenerToken(req);
+    const token = req.headers.authorization?.split(" ")[1] || "Sin token";
 
     if (!proveedor) {
-      return res.status(404).json({ error: "Proveedor no encontrado" });
+      return res.status(404).json({ mensaje: "Proveedor no encontrado" });
     }
 
     await enviarAuditoria({
       accion: "CONSULTA",
-      id_usuario: null,
+      id_usuario: req.usuario?.id_usuario || null,
       details: {
         tipo: "consulta individual",
         cedula_ruc,
         token,
-        usuario_autenticado: "Sin usuario autenticado",
+        usuario_autenticado: req.usuario?.usuario || "Sin usuario autenticado",
       },
-      nombre_rol: "Sistema",
+      nombre_rol: req.usuario?.nombre_rol || "Sistema",
     });
 
     res.json(proveedor);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error en getById:", err);
+    res.status(500).json({ mensaje: "Error del servidor", error: err.message });
   }
 };
 
@@ -93,23 +87,24 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const nuevo = await Proveedor.create(req.body);
-    const token = obtenerToken(req);
+    const token = req.headers.authorization?.split(" ")[1] || "Sin token";
 
     await enviarAuditoria({
       accion: "CREAR",
-      id_usuario: null,
+      id_usuario: req.usuario?.id_usuario || null,
       details: {
         antes: null,
         despues: nuevo,
         token,
-        usuario_autenticado: "Sin usuario autenticado",
+        usuario_autenticado: req.usuario?.usuario || "Sin usuario autenticado",
       },
-      nombre_rol: "Sistema",
+      nombre_rol: req.usuario?.nombre_rol || "Sistema",
     });
 
     res.status(201).json(nuevo);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error en create:", err);
+    res.status(500).json({ mensaje: "Error del servidor", error: err.message });
   }
 };
 
@@ -118,12 +113,12 @@ exports.update = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
     const proveedor = await Proveedor.findByPk(cedula_ruc);
-    const token = obtenerToken(req);
+    const token = req.headers.authorization?.split(" ")[1] || "Sin token";
 
     if (!proveedor) {
       return res
         .status(404)
-        .json({ error: "Proveedor no encontrado para actualizar" });
+        .json({ mensaje: "Proveedor no encontrado para actualizar" });
     }
 
     const datosAntes = { ...proveedor.get() };
@@ -131,19 +126,20 @@ exports.update = async (req, res) => {
 
     await enviarAuditoria({
       accion: "ACTUALIZAR",
-      id_usuario: null,
+      id_usuario: req.usuario?.id_usuario || null,
       details: {
         antes: datosAntes,
         despues: req.body,
         token,
-        usuario_autenticado: "Sin usuario autenticado",
+        usuario_autenticado: req.usuario?.usuario || "Sin usuario autenticado",
       },
-      nombre_rol: "Sistema",
+      nombre_rol: req.usuario?.nombre_rol || "Sistema",
     });
 
     res.json(proveedor);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error en update:", err);
+    res.status(500).json({ mensaje: "Error del servidor", error: err.message });
   }
 };
 
@@ -151,37 +147,37 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
-    const token = obtenerToken(req);
+    const token = req.headers.authorization?.split(" ")[1] || "Sin token";
 
-    // Evitar borrar si posee facturas asociadas
     const facturas = await FacturaCompra.count({
       where: { proveedor_cedula_ruc: cedula_ruc },
     });
     if (facturas > 0) {
       return res.status(400).json({
-        error:
+        mensaje:
           "No se puede eliminar el proveedor porque tiene facturas asociadas.",
       });
     }
 
     const borrado = await Proveedor.destroy({ where: { cedula_ruc } });
     if (!borrado) {
-      return res.status(404).json({ error: "Proveedor no encontrado" });
+      return res.status(404).json({ mensaje: "Proveedor no encontrado" });
     }
 
     await enviarAuditoria({
       accion: "ELIMINAR",
-      id_usuario: null,
+      id_usuario: req.usuario?.id_usuario || null,
       details: {
         eliminado: cedula_ruc,
         token,
-        usuario_autenticado: "Sin usuario autenticado",
+        usuario_autenticado: req.usuario?.usuario || "Sin usuario autenticado",
       },
-      nombre_rol: "Sistema",
+      nombre_rol: req.usuario?.nombre_rol || "Sistema",
     });
 
-    res.json({ message: "Proveedor eliminado correctamente" });
+    res.json({ mensaje: "Proveedor eliminado correctamente" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error en delete:", err);
+    res.status(500).json({ mensaje: "Error del servidor", error: err.message });
   }
 };

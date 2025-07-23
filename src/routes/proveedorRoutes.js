@@ -1,14 +1,8 @@
 // src/routes/proveedorRoutes.js
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const controller = require('../controllers/proveedoresController');
-
-/**
- * @swagger
- * tags:
- *   - name: Proveedores
- *     description: Operaciones sobre proveedores
- */
+const controller = require("../controllers/proveedoresController");
+const { autenticarToken } = require("../controllers/authController");
 
 /**
  * @swagger
@@ -17,6 +11,8 @@ const controller = require('../controllers/proveedoresController');
  *     tags:
  *       - Proveedores
  *     summary: Obtiene todos los proveedores
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de proveedores
@@ -26,8 +22,12 @@ const controller = require('../controllers/proveedoresController');
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Proveedor'
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *       500:
+ *         description: Error interno del servidor
  */
-router.get('/', controller.getAll);
+router.get("/", autenticarToken, controller.getAll);
 
 /**
  * @swagger
@@ -35,7 +35,9 @@ router.get('/', controller.getAll);
  *   get:
  *     tags:
  *       - Proveedores
- *     summary: Obtiene un proveedor por cédula o RUC
+ *     summary: Obtiene un proveedor por cedula_ruc
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: cedula_ruc
@@ -52,8 +54,12 @@ router.get('/', controller.getAll);
  *               $ref: '#/components/schemas/Proveedor'
  *       404:
  *         description: Proveedor no encontrado
+ *       401:
+ *         description: Token no proporcionado o inválido
+ *       500:
+ *         description: Error interno del servidor
  */
-router.get('/:cedula_ruc', controller.getById);
+router.get("/:cedula_ruc", autenticarToken, controller.getById);
 
 /**
  * @swagger
@@ -62,35 +68,23 @@ router.get('/:cedula_ruc', controller.getById);
  *     tags:
  *       - Proveedores
  *     summary: Crea un nuevo proveedor
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/ProveedorCreate'
- *           example:
- *             cedula_ruc: "string"
- *             nombre: "string"
- *             ciudad: "string"
- *             tipo_proveedor: "string"    # debe coincidir con enum en BD: "Crédito" o "Contado"
- *             direccion: "string"
- *             telefono: "string"
- *             email: "user@example.com"
- *             usuario_creacion: "string"  # placeholder; en la práctica, entero con ID de usuario
- *             estado: false               # o true; placeholder boolean
  *     responses:
  *       201:
- *         description: Proveedor creado correctamente
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Proveedor'
- *       400:
- *         description: Error de validación o valor inválido
+ *         description: Proveedor creado
+ *       401:
+ *         description: Token no proporcionado o inválido
  *       500:
  *         description: Error interno del servidor
  */
-router.post('/', controller.create);
+router.post("/", autenticarToken, controller.create);
 
 /**
  * @swagger
@@ -99,6 +93,8 @@ router.post('/', controller.create);
  *     tags:
  *       - Proveedores
  *     summary: Actualiza un proveedor existente
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: cedula_ruc
@@ -112,30 +108,17 @@ router.post('/', controller.create);
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/ProveedorUpdate'
- *           example:
- *             nombre: "string"
- *             ciudad: "string"
- *             tipo_proveedor: "string"    # "Crédito" o "Contado"
- *             direccion: "string"
- *             telefono: "string"
- *             email: "user@example.com"
- *             estado: true                # o false
- *             usuario_modificacion: "string"  # placeholder: ID de usuario como string
  *     responses:
  *       200:
- *         description: Proveedor actualizado correctamente
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Proveedor'
- *       400:
- *         description: Error de validación o valor inválido
+ *         description: Proveedor actualizado
  *       404:
- *         description: Proveedor no encontrado para actualizar
+ *         description: Proveedor no encontrado
+ *       401:
+ *         description: Token no proporcionado o inválido
  *       500:
  *         description: Error interno del servidor
  */
-router.put('/:cedula_ruc', controller.update);
+router.put("/:cedula_ruc", autenticarToken, controller.update);
 
 /**
  * @swagger
@@ -144,6 +127,8 @@ router.put('/:cedula_ruc', controller.update);
  *     tags:
  *       - Proveedores
  *     summary: Elimina un proveedor
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: cedula_ruc
@@ -153,14 +138,23 @@ router.put('/:cedula_ruc', controller.update);
  *         description: Cédula o RUC del proveedor
  *     responses:
  *       200:
- *         description: Proveedor eliminado correctamente
+ *         description: Proveedor eliminado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje:
+ *                   type: string
  *       400:
- *         description: No se puede eliminar debido a facturas asociadas
+ *         description: No se puede eliminar porque tiene facturas asociadas
  *       404:
  *         description: Proveedor no encontrado
+ *       401:
+ *         description: Token no proporcionado o inválido
  *       500:
  *         description: Error interno del servidor
  */
-router.delete('/:cedula_ruc', controller.delete);
+router.delete("/:cedula_ruc", autenticarToken, controller.delete);
 
 module.exports = router;
