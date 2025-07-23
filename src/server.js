@@ -12,7 +12,7 @@ const facturaRoutes = require('./routes/fac_detalle.route');
     app.get('/ping', (req, res) => {
       res.send('¡Bienvenido a la API de compras!');
     });
-    app.use('/exp3', facturaRoutes);
+    app.use('/compras', facturaRoutes);
     app.listen(PORT, '0.0.0.0', () => { // <-- AÑADE '0.0.0.0' AQUÍ
       console.log(`Servidor corriendo en el puerto ${PORT}`);
       console.log(`Documentación Swagger: http://localhost:${PORT}/api-docs`);

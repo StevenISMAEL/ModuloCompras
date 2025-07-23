@@ -11,7 +11,7 @@ const { getFacturasController } = require('../modules/fac_detalle.controller');
 
 /**
  * @swagger
- * /facturas:
+ * /compras/facturas:
  *   get:
  *     tags:
  *       - Facturas
