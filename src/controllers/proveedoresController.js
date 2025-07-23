@@ -52,7 +52,8 @@ const enviarAuditoria = async ({
 exports.getAll = async (req, res) => {
   try {
     const proveedores = await Proveedor.findAll();
-
+    const token = extraerToken(req);
+    const usuarioAutenticado = req.usuario || decodificarToken(token);
     await enviarAuditoria({
       accion: "CONSULTA",
       id_usuario: req.usuario?.id || null,
