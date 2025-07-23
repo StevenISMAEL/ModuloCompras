@@ -1,23 +1,7 @@
 const { Proveedor, FacturaCompra } = require("../models");
 const axios = require("axios");
 
-function extraerToken(req) {
-  const authHeader = req.headers.authorization;
-  console.log("Header authorization:", authHeader); // Depuración
-  if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
-  return authHeader.split(" ")[1];
-}
-
-function decodificarToken(token) {
-  try {
-    return token ? jwt.verify(token, SECRET_KEY) : null;
-  } catch (error) {
-    console.error("Error al decodificar token:", error.message);
-    return null;
-  }
-}
-
-// URL DE LA API DE AUDITORÍA
+// URL de la API de auditoría
 const AUDITORIA_URL =
   "https://aplicacion-de-seguridad-v2.onrender.com/api/auditoria";
 
@@ -32,7 +16,7 @@ const enviarAuditoria = async ({
 }) => {
   try {
     await axios.post(AUDITORIA_URL, {
-      accion: accion.toUpperCase(), // fuerza a mayúsculas
+      accion: accion.toUpperCase(),
       modulo,
       tabla,
       id_usuario,
@@ -44,25 +28,30 @@ const enviarAuditoria = async ({
   }
 };
 
-/* ------------------------------------------------------------------ */
-/* CRUD + AUDITORÍA                                                   */
-/* ------------------------------------------------------------------ */
+// Función para extraer el token de los encabezados (solo para auditoría, sin autenticación)
+const obtenerToken = (req) => {
+  const authHeader = req.headers.authorization;
+  console.log("Header authorization:", authHeader); // Depuración
+  return authHeader && authHeader.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : "Sin token";
+};
 
 // Listar todos los proveedores
 exports.getAll = async (req, res) => {
   try {
     const proveedores = await Proveedor.findAll();
-    const token = extraerToken(req);
-    const usuarioAutenticado = req.usuario || decodificarToken(token);
+    const token = obtenerToken(req);
+
     await enviarAuditoria({
       accion: "CONSULTA",
-      id_usuario: req.usuario?.id || null,
+      id_usuario: null,
       details: {
-        ...result.rows[0],
-        token: token || "Sin token",
-        usuario_autenticado:
-          usuarioAutenticado?.usuario || "Sin usuario autenticado",
+        tipo: "consulta general",
+        token,
+        usuario_autenticado: "Sin usuario autenticado",
       },
+      nombre_rol: "Sistema",
     });
 
     res.json(proveedores);
@@ -76,15 +65,22 @@ exports.getById = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
     const proveedor = await Proveedor.findByPk(cedula_ruc);
+    const token = obtenerToken(req);
+
     if (!proveedor) {
       return res.status(404).json({ error: "Proveedor no encontrado" });
     }
 
     await enviarAuditoria({
       accion: "CONSULTA",
-      id_usuario: req.usuario?.id || null,
-      details: { tipo: "consulta individual", cedula_ruc },
-      nombre_rol: req.usuario?.rol || "Sistema",
+      id_usuario: null,
+      details: {
+        tipo: "consulta individual",
+        cedula_ruc,
+        token,
+        usuario_autenticado: "Sin usuario autenticado",
+      },
+      nombre_rol: "Sistema",
     });
 
     res.json(proveedor);
@@ -97,12 +93,18 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const nuevo = await Proveedor.create(req.body);
+    const token = obtenerToken(req);
 
     await enviarAuditoria({
       accion: "CREAR",
-      id_usuario: req.usuario?.id || null,
-      details: { antes: null, despues: nuevo },
-      nombre_rol: req.usuario?.rol || "Sistema",
+      id_usuario: null,
+      details: {
+        antes: null,
+        despues: nuevo,
+        token,
+        usuario_autenticado: "Sin usuario autenticado",
+      },
+      nombre_rol: "Sistema",
     });
 
     res.status(201).json(nuevo);
@@ -116,6 +118,8 @@ exports.update = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
     const proveedor = await Proveedor.findByPk(cedula_ruc);
+    const token = obtenerToken(req);
+
     if (!proveedor) {
       return res
         .status(404)
@@ -127,9 +131,14 @@ exports.update = async (req, res) => {
 
     await enviarAuditoria({
       accion: "ACTUALIZAR",
-      id_usuario: req.usuario?.id || null,
-      details: { antes: datosAntes, despues: req.body },
-      nombre_rol: req.usuario?.rol || "Sistema",
+      id_usuario: null,
+      details: {
+        antes: datosAntes,
+        despues: req.body,
+        token,
+        usuario_autenticado: "Sin usuario autenticado",
+      },
+      nombre_rol: "Sistema",
     });
 
     res.json(proveedor);
@@ -142,6 +151,7 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
+    const token = obtenerToken(req);
 
     // Evitar borrar si posee facturas asociadas
     const facturas = await FacturaCompra.count({
@@ -161,9 +171,13 @@ exports.delete = async (req, res) => {
 
     await enviarAuditoria({
       accion: "ELIMINAR",
-      id_usuario: req.usuario?.id || null,
-      details: { eliminado: cedula_ruc },
-      nombre_rol: req.usuario?.rol || "Sistema",
+      id_usuario: null,
+      details: {
+        eliminado: cedula_ruc,
+        token,
+        usuario_autenticado: "Sin usuario autenticado",
+      },
+      nombre_rol: "Sistema",
     });
 
     res.json({ message: "Proveedor eliminado correctamente" });
