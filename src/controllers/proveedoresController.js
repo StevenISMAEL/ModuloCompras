@@ -1,22 +1,13 @@
-// src/controllers/proveedoresController.js
-const { Proveedor, FacturaCompra } = require("../models");
+const { FacturaDetalle } = require("../models");
 const axios = require("axios");
 
 const AUDITORIA_URL =
   "https://aplicacion-de-seguridad-v2.onrender.com/api/auditoria";
 
-const obtenerToken = (req) => {
-  const authHeader = req.headers.authorization;
-  console.log("Header authorization:", authHeader);
-  return authHeader && authHeader.startsWith("Bearer ")
-    ? authHeader.split(" ")[1]
-    : "Sin token";
-};
-
 const enviarAuditoria = async ({
   accion,
   modulo = "compras",
-  tabla = "proveedores",
+  tabla = "facturas_detalle",
   id_usuario = null,
   details = {},
   nombre_rol = "Sistema",
@@ -30,12 +21,6 @@ const enviarAuditoria = async ({
       details,
       nombre_rol,
     });
-    console.log("Auditoría enviada:", {
-      accion,
-      id_usuario,
-      details,
-      nombre_rol,
-    });
   } catch (error) {
     console.warn("Error al enviar auditoría:", error.message);
   }
@@ -43,21 +28,16 @@ const enviarAuditoria = async ({
 
 exports.getAll = async (req, res) => {
   try {
-    const proveedores = await Proveedor.findAll();
-    const token = obtenerToken(req);
+    const detalles = await FacturaDetalle.findAll();
 
     await enviarAuditoria({
       accion: "CONSULTA",
-      id_usuario: req.usuario?.id_usuario || null,
-      details: {
-        tipo: "consulta general",
-        token,
-        usuario_autenticado: req.usuario?.usuario || "Sin usuario autenticado",
-      },
-      nombre_rol: req.usuario?.nombre_rol || "Sistema",
+      id_usuario: req.usuario?.id || null,
+      details: { tipo: "listar todos los detalles" },
+      nombre_rol: req.usuario?.rol || "Sistema",
     });
 
-    res.json(proveedores);
+    res.json(detalles);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -65,27 +45,20 @@ exports.getAll = async (req, res) => {
 
 exports.getById = async (req, res) => {
   try {
-    const { cedula_ruc } = req.params;
-    const proveedor = await Proveedor.findByPk(cedula_ruc);
-    const token = obtenerToken(req);
-
-    if (!proveedor) {
-      return res.status(404).json({ error: "Proveedor no encontrado" });
+    const { id } = req.params;
+    const detalle = await FacturaDetalle.findByPk(id);
+    if (!detalle) {
+      return res.status(404).json({ error: "Detalle no encontrado" });
     }
 
     await enviarAuditoria({
       accion: "CONSULTA",
-      id_usuario: req.usuario?.id_usuario || null,
-      details: {
-        tipo: "consulta individual",
-        cedula_ruc,
-        token,
-        usuario_autenticado: req.usuario?.usuario || "Sin usuario autenticado",
-      },
-      nombre_rol: req.usuario?.nombre_rol || "Sistema",
+      id_usuario: req.usuario?.id || null,
+      details: { tipo: "consulta individual", id },
+      nombre_rol: req.usuario?.rol || "Sistema",
     });
 
-    res.json(proveedor);
+    res.json(detalle);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -93,22 +66,13 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    if (!req.usuario) {
-      return res.status(401).json({ error: "Autenticación requerida" });
-    }
-    const nuevo = await Proveedor.create(req.body);
-    const token = obtenerToken(req);
+    const nuevo = await FacturaDetalle.create(req.body);
 
     await enviarAuditoria({
       accion: "CREAR",
-      id_usuario: req.usuario.id_usuario,
-      details: {
-        antes: null,
-        despues: nuevo,
-        token,
-        usuario_autenticado: req.usuario.usuario,
-      },
-      nombre_rol: req.usuario.nombre_rol,
+      id_usuario: req.usuario?.id || null,
+      details: { antes: null, despues: nuevo },
+      nombre_rol: req.usuario?.rol || "Sistema",
     });
 
     res.status(201).json(nuevo);
@@ -117,4 +81,47 @@ exports.create = async (req, res) => {
   }
 };
 
-// Similar para update y delete, con validación de req.usuario
+exports.update = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const detalle = await FacturaDetalle.findByPk(id);
+    if (!detalle) {
+      return res.status(404).json({ error: "Detalle no encontrado" });
+    }
+
+    const datosAntes = { ...detalle.get() };
+    await detalle.update(req.body);
+
+    await enviarAuditoria({
+      accion: "ACTUALIZAR",
+      id_usuario: req.usuario?.id || null,
+      details: { antes: datosAntes, despues: req.body },
+      nombre_rol: req.usuario?.rol || "Sistema",
+    });
+
+    res.json(detalle);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.delete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const borrado = await FacturaDetalle.destroy({ where: { id } });
+    if (!borrado) {
+      return res.status(404).json({ error: "Detalle no encontrado" });
+    }
+
+    await enviarAuditoria({
+      accion: "ELIMINAR",
+      id_usuario: req.usuario?.id || null,
+      details: { eliminado: id },
+      nombre_rol: req.usuario?.rol || "Sistema",
+    });
+
+    res.json({ message: "Detalle eliminado correctamente" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
