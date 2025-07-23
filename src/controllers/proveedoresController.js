@@ -10,7 +10,7 @@ const enviarAuditoria = async ({
   accion,
   modulo = "compras",
   tabla = "proveedores",
-  id_usuario: usuarioAutenticado?.id_usuario || null,
+  id_usuario = null, // Aquí asignas null por defecto
   details = {},
   nombre_rol = "Sistema",
 }) => {
