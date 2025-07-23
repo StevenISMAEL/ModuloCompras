@@ -1,11 +1,17 @@
-// src/controllers/authController.js
 const jwt = require("jsonwebtoken");
 
 const autenticarToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
+  const authHeader = req.headers.authorization;
+  console.log("Header Authorization completo:", authHeader); // Depuración
+  console.log("Todos los headers:", JSON.stringify(req.headers, null, 2)); // Depuración
+  const token = authHeader?.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : null;
   console.log("Token recibido:", token); // Depuración
   if (!token) {
-    return res.status(401).json({ mensaje: "Token no proporcionado" });
+    return res
+      .status(401)
+      .json({ mensaje: "Token no proporcionado o formato inválido" });
   }
 
   try {

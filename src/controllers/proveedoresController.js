@@ -1,10 +1,18 @@
-// src/controllers/proveedoresController.js
 const { Proveedor, FacturaCompra } = require("../models");
 const axios = require("axios");
 
 // URL de la API de auditoría
 const AUDITORIA_URL =
   "https://aplicacion-de-seguridad-v2.onrender.com/api/auditoria";
+
+// Función para extraer el token de los encabezados
+const obtenerToken = (req) => {
+  const authHeader = req.headers.authorization;
+  console.log("Encabezado de autorización:", authHeader); // Depuración
+  return authHeader && authHeader.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : "Sin token";
+};
 
 // Función genérica para enviar auditoría
 const enviarAuditoria = async ({
@@ -33,13 +41,13 @@ const enviarAuditoria = async ({
 exports.getAll = async (req, res) => {
   try {
     const proveedores = await Proveedor.findAll();
-    const token = req.headers.authorization?.split(" ")[1] || "Sin token";
+    const token = obtenerToken(req);
 
     await enviarAuditoria({
       accion: "CONSULTA",
       id_usuario: req.usuario?.id_usuario || null,
       details: {
-        tipo: "consulta general",
+        tipo: "listar todos los proveedores",
         token,
         usuario_autenticado: req.usuario?.usuario || "Sin usuario autenticado",
       },
@@ -48,8 +56,7 @@ exports.getAll = async (req, res) => {
 
     res.json(proveedores);
   } catch (err) {
-    console.error("Error en getAll:", err);
-    res.status(500).json({ mensaje: "Error del servidor", error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -58,10 +65,10 @@ exports.getById = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
     const proveedor = await Proveedor.findByPk(cedula_ruc);
-    const token = req.headers.authorization?.split(" ")[1] || "Sin token";
+    const token = obtenerToken(req);
 
     if (!proveedor) {
-      return res.status(404).json({ mensaje: "Proveedor no encontrado" });
+      return res.status(404).json({ error: "Proveedor no encontrado" });
     }
 
     await enviarAuditoria({
@@ -78,8 +85,7 @@ exports.getById = async (req, res) => {
 
     res.json(proveedor);
   } catch (err) {
-    console.error("Error en getById:", err);
-    res.status(500).json({ mensaje: "Error del servidor", error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -87,7 +93,7 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const nuevo = await Proveedor.create(req.body);
-    const token = req.headers.authorization?.split(" ")[1] || "Sin token";
+    const token = obtenerToken(req);
 
     await enviarAuditoria({
       accion: "CREAR",
@@ -103,8 +109,7 @@ exports.create = async (req, res) => {
 
     res.status(201).json(nuevo);
   } catch (err) {
-    console.error("Error en create:", err);
-    res.status(500).json({ mensaje: "Error del servidor", error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -113,12 +118,12 @@ exports.update = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
     const proveedor = await Proveedor.findByPk(cedula_ruc);
-    const token = req.headers.authorization?.split(" ")[1] || "Sin token";
+    const token = obtenerToken(req);
 
     if (!proveedor) {
       return res
         .status(404)
-        .json({ mensaje: "Proveedor no encontrado para actualizar" });
+        .json({ error: "Proveedor no encontrado para actualizar" });
     }
 
     const datosAntes = { ...proveedor.get() };
@@ -138,8 +143,7 @@ exports.update = async (req, res) => {
 
     res.json(proveedor);
   } catch (err) {
-    console.error("Error en update:", err);
-    res.status(500).json({ mensaje: "Error del servidor", error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -147,21 +151,21 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   try {
     const { cedula_ruc } = req.params;
-    const token = req.headers.authorization?.split(" ")[1] || "Sin token";
+    const token = obtenerToken(req);
 
     const facturas = await FacturaCompra.count({
       where: { proveedor_cedula_ruc: cedula_ruc },
     });
     if (facturas > 0) {
       return res.status(400).json({
-        mensaje:
+        error:
           "No se puede eliminar el proveedor porque tiene facturas asociadas.",
       });
     }
 
     const borrado = await Proveedor.destroy({ where: { cedula_ruc } });
     if (!borrado) {
-      return res.status(404).json({ mensaje: "Proveedor no encontrado" });
+      return res.status(404).json({ error: "Proveedor no encontrado" });
     }
 
     await enviarAuditoria({
@@ -175,9 +179,8 @@ exports.delete = async (req, res) => {
       nombre_rol: req.usuario?.nombre_rol || "Sistema",
     });
 
-    res.json({ mensaje: "Proveedor eliminado correctamente" });
+    res.json({ message: "Proveedor eliminado correctamente" });
   } catch (err) {
-    console.error("Error en delete:", err);
-    res.status(500).json({ mensaje: "Error del servidor", error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
