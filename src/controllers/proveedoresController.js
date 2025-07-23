@@ -1,6 +1,22 @@
 const { Proveedor, FacturaCompra } = require("../models");
 const axios = require("axios");
 
+function extraerToken(req) {
+  const authHeader = req.headers.authorization;
+  console.log("Header authorization:", authHeader); // Depuración
+  if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
+  return authHeader.split(" ")[1];
+}
+
+function decodificarToken(token) {
+  try {
+    return token ? jwt.verify(token, SECRET_KEY) : null;
+  } catch (error) {
+    console.error("Error al decodificar token:", error.message);
+    return null;
+  }
+}
+
 // URL DE LA API DE AUDITORÍA
 const AUDITORIA_URL =
   "https://aplicacion-de-seguridad-v2.onrender.com/api/auditoria";
@@ -40,8 +56,12 @@ exports.getAll = async (req, res) => {
     await enviarAuditoria({
       accion: "CONSULTA",
       id_usuario: req.usuario?.id || null,
-      details: { tipo: "listar todos los proveedores" },
-      nombre_rol: req.usuario?.rol || "Sistema",
+      details: {
+        ...result.rows[0],
+        token: token || "Sin token",
+        usuario_autenticado:
+          usuarioAutenticado?.usuario || "Sin usuario autenticado",
+      },
     });
 
     res.json(proveedores);
